@@ -15,6 +15,8 @@ const DARK_ALLOWED = new Set([
 const WHITE_ALLOWED_FILES = new Set([
   // 图表色块上的白色百分比标签，色板全部满足白字 4.5:1
   'src/components/stats/Charts.tsx',
+  // 深色遮罩/查看器上的白色控件
+  ...DARK_ALLOWED,
 ])
 
 const WHITE_ALLOWED_PATTERNS = [
