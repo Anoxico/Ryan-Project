@@ -12,6 +12,9 @@ const DARK_ALLOWED = new Set([
   'src/components/ui/dialog.tsx',
 ])
 
+// 允许出现裸颜色字面量的文件（图表色板）
+const RAW_COLOR_ALLOWED = new Set(['src/components/stats/Charts.tsx'])
+
 const WHITE_ALLOWED_FILES = new Set([
   // 图表色块上的白色百分比标签，色板全部满足白字 4.5:1
   'src/components/stats/Charts.tsx',
@@ -22,6 +25,8 @@ const WHITE_ALLOWED_FILES = new Set([
 const WHITE_ALLOWED_PATTERNS = [
   /brand-strong/,
   /brand-pressed/,
+  /bg-brand-gradient/,
+  /bg-brand-vivid/,
   /color-danger/,
   /bg-black\//,
   /bg-\[rgba\(/,
@@ -48,6 +53,9 @@ for (const file of files) {
       const ok =
         WHITE_ALLOWED_FILES.has(file) || WHITE_ALLOWED_PATTERNS.some((re) => re.test(line))
       if (!ok) violations.push(`${at} text-white 未在白名单场景`)
+    }
+    if (!RAW_COLOR_ALLOWED.has(file) && (/#[0-9a-fA-F]{3,8}\b/.test(line) || /rgba\(/.test(line))) {
+      violations.push(`${at} 禁止裸颜色值，请使用令牌或渐变类`)
     }
   })
 }

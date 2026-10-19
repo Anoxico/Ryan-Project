@@ -39,8 +39,14 @@ const checks = [
   ['warning', 'warning-soft', 4.5, '警告/浅黄底'],
   ['brand', 'surface', 3, '品牌图形/白'],
   ['brand', 'bg', 3, '品牌图形/页面底'],
+  ['brand', 'brand-50', 3, '品牌图形/浅蓝底'],
+  ['brand-strong', 'brand-50', 3, '图标瓷砖图标/浅蓝底'],
   ['control', 'surface', 3, '控件描边/白'],
   ['control', 'bg', 3, '控件描边/页面底'],
+  ['on-brand', 'brand-strong', 4.5, '白字/安全渐变亮端'],
+  ['on-brand', 'brand-pressed', 4.5, '白字/安全渐变暗端'],
+  ['fg', 'brand-100', 4.5, '正文/浅蓝100'],
+  ['brand-pressed', 'brand-100', 4.5, '蓝字/浅蓝100'],
 ]
 
 let failed = false

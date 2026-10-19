@@ -10,15 +10,15 @@ const buttonVariants = cva(
       variant: {
         default:
           'bg-[var(--color-brand-strong)] text-white hover:bg-[var(--color-brand-pressed)] shadow-float',
-        accent:
-          'bg-gradient-to-br from-[var(--color-brand)] to-[var(--color-brand-strong)] text-white hover:brightness-105 shadow-float',
+        gradient:
+          'bg-brand-gradient text-white hover:brightness-105 shadow-float',
         glass: 'glass text-[var(--color-fg)] hover:bg-[var(--color-brand-50)]',
         outline:
           'border border-[var(--color-control)] bg-[var(--color-surface)] text-[var(--color-fg)] hover:border-[var(--color-brand-strong)] hover:text-[var(--color-brand-text)]',
         ghost:
           'text-[var(--color-fg-dim)] hover:text-[var(--color-fg)] hover:bg-[var(--color-surface-2)]',
         destructive:
-          'bg-[var(--color-danger)] text-white hover:brightness-110 shadow-[0_8px_24px_-12px_rgba(180,35,24,0.5)]',
+          'bg-[var(--color-danger)] text-white hover:brightness-110 shadow-danger',
       },
       size: {
         sm: 'h-9 px-3.5 text-sm rounded-[0.9rem]',
