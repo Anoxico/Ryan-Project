@@ -27,9 +27,25 @@ Google Apps Script Web App（运行在你的谷歌账号下）
 apps-script/
   Code.gs            Apps Script 后端（API / 表格读写 / Drive 照片 / 口令 / 统计）
   appsscript.json    清单（clasp 用，可选手动部署）
+src/                 前端（React + Vite + Tailwind + shadcn 风格组件）
+  components/        UI 组件与布局
+  lib/               配置 / API / 字典 / 类型
+  pages/             页面
 docs/
   01-apps-script-setup.md  零基础搭建教程（先看这个）
 ```
+
+## 前端开发
+
+```bash
+npm install          # 安装依赖
+npm run dev          # 本地开发
+npm run build        # 类型检查 + 构建到 dist/
+npm run deploy       # 构建并发布到 GitHub Pages (gh-pages 分支)
+```
+
+设计语言：纯黑背景 + 毛玻璃层次 + 超平滑大圆角；字体 Inter / SF Pro / 苹方 / 思源黑体。
+后端地址与口令存于浏览器 localStorage，首次打开在配置页填写。
 
 ## 快速开始
 
@@ -64,8 +80,8 @@ docs/
 
 | 阶段 | 内容 | 状态 |
 |---|---|---|
-| 0′ | Apps Script 后端 + Google 表格 | 代码完成，待你按教程部署 |
-| 1 | 前端骨架 | 待开始 |
+| 0′ | Apps Script 后端 + Google 表格 | 代码完成，待部署 |
+| 1 | 前端骨架（配置页 / Tab 导航 / 设计系统） | 已完成 |
 | 2 | 巡店单主流程 | 待开始 |
 | 3 | 产品记录与动态字段 | 待开始 |
 | 4 | 照片上传 | 待开始 |
