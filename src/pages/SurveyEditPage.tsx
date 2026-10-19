@@ -1,17 +1,27 @@
 import * as React from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { SurveyForm } from '@/components/survey/SurveyForm'
 import { Spinner } from '@/components/ui/spinner'
 import { getSurvey, saveSurvey, type SurveyInput } from '@/lib/surveys'
 import type { Survey } from '@/lib/types'
 
+interface Prefill {
+  channel?: string
+  customer?: string
+  store?: string
+}
+
 export function SurveyEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const isEdit = !!id
+  const prefill = (location.state as { prefill?: Prefill } | null)?.prefill
 
-  const [initial, setInitial] = React.useState<Partial<Survey> | undefined>(undefined)
+  const [initial, setInitial] = React.useState<Partial<Survey> | undefined>(
+    isEdit ? undefined : prefill,
+  )
   const [loading, setLoading] = React.useState(isEdit)
   const [loadError, setLoadError] = React.useState<string | null>(null)
   const [submitting, setSubmitting] = React.useState(false)

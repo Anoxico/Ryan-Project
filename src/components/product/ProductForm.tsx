@@ -268,7 +268,7 @@ export function ProductForm({
       </Field>
 
       {/* 照片 */}
-      <Field label="巡店照片" hint="选填，可拍照或从相册选择多张">
+      <Field label="产品照片" hint="该产品特写，选填，可拍照或从相册选择多张">
         <PhotoUploader
           photos={photos}
           disabled={submitting}

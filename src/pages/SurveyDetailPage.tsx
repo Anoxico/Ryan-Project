@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import {
   ArrowLeft,
   Pencil,
@@ -205,6 +205,12 @@ export function SurveyDetailPage() {
             <h1 className="mt-2 text-[1.7rem] font-extrabold leading-tight tracking-tight">
               {survey.store}
             </h1>
+            <Link
+              to={`/store/${encodeURIComponent(survey.store)}`}
+              className="mt-1 inline-flex items-center gap-0.5 text-xs text-[var(--color-fg-dim)] underline decoration-dotted"
+            >
+              查看该门店全部巡店记录
+            </Link>
           </div>
 
           <Card className="space-y-4">
@@ -224,7 +230,10 @@ export function SurveyDetailPage() {
           </Card>
 
           <div className="mt-4">
-            <h2 className="mb-3 text-lg font-bold">巡店照片</h2>
+            <h2 className="mb-3 text-lg font-bold">
+              门店照片
+              <span className="ml-2 text-sm font-medium text-[var(--color-fg-dim)]">整店 / 环境</span>
+            </h2>
             <PhotoUploader
               photos={surveyPhotos}
               onAddFiles={(files) => void handleAddSurveyPhotos(files)}

@@ -26,3 +26,37 @@ export function saveSurvey(input: SurveyInput) {
 export function deleteSurvey(id: string) {
   return api<{ deleted: boolean }>('deleteSurvey', { id })
 }
+
+export interface StoreGroup {
+  store: string
+  channel: string
+  customer: string
+  visitCount: number
+  latestDate: string
+  cover?: string
+  surveys: Survey[]
+}
+
+/** 将巡店单按门店分组（输入应按日期倒序），封面取最近一次有照片的记录 */
+export function groupByStore(surveys: Survey[]): StoreGroup[] {
+  const map = new Map<string, StoreGroup>()
+  for (const s of surveys) {
+    let group = map.get(s.store)
+    if (!group) {
+      group = {
+        store: s.store,
+        channel: s.channel,
+        customer: s.customer,
+        visitCount: 0,
+        latestDate: s.visit_date,
+        cover: undefined,
+        surveys: [],
+      }
+      map.set(s.store, group)
+    }
+    group.visitCount += 1
+    group.surveys.push(s)
+    if (!group.cover && s.thumbnail) group.cover = s.thumbnail
+  }
+  return Array.from(map.values())
+}

@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Plus, Store, RefreshCw } from 'lucide-react'
 import { PageHeader } from '@/components/layout/AppShell'
-import { SurveyCard } from '@/components/survey/SurveyCard'
+import { StoreCard } from '@/components/store/StoreCard'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
-import { listSurveys } from '@/lib/surveys'
+import { listSurveys, groupByStore } from '@/lib/surveys'
 import type { Survey } from '@/lib/types'
 
 export function HomePage() {
@@ -32,11 +32,13 @@ export function HomePage() {
     void load()
   }, [load])
 
+  const stores = React.useMemo(() => groupByStore(surveys), [surveys])
+
   return (
     <div>
       <PageHeader
-        title="巡店记录"
-        subtitle={loading ? '加载中…' : `共 ${surveys.length} 次巡店`}
+        title="门店"
+        subtitle={loading ? '加载中…' : `${stores.length} 家门店 · ${surveys.length} 次巡店`}
         action={
           !loading && (
             <button
@@ -68,7 +70,7 @@ export function HomePage() {
         </Card>
       )}
 
-      {!loading && !error && surveys.length === 0 && (
+      {!loading && !error && stores.length === 0 && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -77,22 +79,22 @@ export function HomePage() {
           <div className="glass flex h-16 w-16 items-center justify-center rounded-full">
             <Store className="h-7 w-7 text-[var(--color-fg-dim)]" />
           </div>
-          <h2 className="mt-5 text-lg font-bold">还没有巡店记录</h2>
+          <h2 className="mt-5 text-lg font-bold">还没有门店记录</h2>
           <p className="mt-1 max-w-[16rem] text-sm text-[var(--color-fg-dim)]">
-            新建一条巡店单，开始记录门店出样情况。
+            新建一条巡店记录，门店会自动出现在这里。
           </p>
           <Button asChild className="mt-6">
             <Link to="/survey/new">
-              <Plus className="h-4 w-4" /> 新建巡店单
+              <Plus className="h-4 w-4" /> 新建巡店记录
             </Link>
           </Button>
         </motion.div>
       )}
 
-      {!loading && !error && surveys.length > 0 && (
+      {!loading && !error && stores.length > 0 && (
         <div className="space-y-3">
-          {surveys.map((s) => (
-            <SurveyCard key={s.id} survey={s} />
+          {stores.map((group) => (
+            <StoreCard key={group.store} group={group} />
           ))}
         </div>
       )}
@@ -103,7 +105,7 @@ export function HomePage() {
           <Link
             to="/survey/new"
             className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)] text-white shadow-[0_10px_40px_-8px_var(--color-accent)] transition-transform active:scale-95"
-            aria-label="新建巡店单"
+            aria-label="新建巡店记录"
           >
             <Plus className="h-6 w-6" strokeWidth={2.5} />
           </Link>
