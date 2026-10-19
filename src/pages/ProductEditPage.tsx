@@ -5,6 +5,7 @@ import { ProductForm } from '@/components/product/ProductForm'
 import { Spinner } from '@/components/ui/spinner'
 import { getSurvey } from '@/lib/surveys'
 import { saveProduct, type ProductInput } from '@/lib/products'
+import { uploadPhoto, deletePhoto, toPhotoItems, type PhotoItem } from '@/lib/photos'
 import type { ProductRecord } from '@/lib/types'
 
 export function ProductEditPage() {
@@ -13,6 +14,8 @@ export function ProductEditPage() {
   const isEdit = !!productId
 
   const [initial, setInitial] = React.useState<Partial<ProductRecord> | undefined>(undefined)
+  const [photos, setPhotos] = React.useState<PhotoItem[]>([])
+  const originalIds = React.useRef<string[]>([])
   const [loading, setLoading] = React.useState(isEdit)
   const [loadError, setLoadError] = React.useState<string | null>(null)
   const [submitting, setSubmitting] = React.useState(false)
@@ -26,7 +29,11 @@ export function ProductEditPage() {
         const survey = await getSurvey(surveyId)
         const found = survey.products?.find((p) => p.id === productId)
         if (!found) throw new Error('未找到该产品记录')
-        if (alive) setInitial(found)
+        if (alive) {
+          setInitial(found)
+          setPhotos(toPhotoItems(found.photos))
+          originalIds.current = (found.photos ?? []).map((p) => p.id)
+        }
       } catch (e) {
         if (alive) setLoadError((e as Error).message)
       } finally {
@@ -39,15 +46,53 @@ export function ProductEditPage() {
   }, [surveyId, productId])
 
   async function handleSubmit(values: ProductInput) {
+    if (!surveyId) return
     setSubmitting(true)
     setError(null)
+    // 清除上一次的错误状态
+    setPhotos((prev) => prev.map((p) => (p.status === 'error' ? { ...p, status: 'pending' } : p)))
+
     try {
-      await saveProduct(values)
+      const { id: savedId } = await saveProduct(values)
+
+      // 删除已移除的旧照片
+      const removed = originalIds.current.filter((id) => !photos.some((p) => p.id === id))
+      await Promise.all(removed.map((id) => deletePhoto(id).catch(() => undefined)))
+
+      // 上传新照片
+      const pending = photos.filter((p) => p.file)
+      const failed: string[] = []
+      for (let i = 0; i < pending.length; i++) {
+        const item = pending[i]
+        if (!item.file) continue
+        setPhotos((prev) =>
+          prev.map((p) => (p.key === item.key ? { ...p, status: 'uploading' } : p)),
+        )
+        try {
+          await uploadPhoto({ productId: savedId, surveyId, file: item.file, sortOrder: i })
+          setPhotos((prev) => prev.map((p) => (p.key === item.key ? { ...p, status: undefined } : p)))
+        } catch {
+          failed.push(item.key)
+          setPhotos((prev) => prev.map((p) => (p.key === item.key ? { ...p, status: 'error' } : p)))
+        }
+      }
+
+      if (failed.length > 0) {
+        setError(`有 ${failed.length} 张照片上传失败，请点「重试」或再次保存`)
+        setSubmitting(false)
+        return
+      }
+
       navigate(`/survey/${surveyId}`, { replace: true })
     } catch (e) {
       setError((e as Error).message)
       setSubmitting(false)
     }
+  }
+
+  function handleRetry(key: string) {
+    setPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, status: 'pending' } : p)))
+    setError(null)
   }
 
   return (
@@ -90,6 +135,9 @@ export function ProductEditPage() {
         <ProductForm
           surveyId={surveyId}
           initial={initial}
+          photos={photos}
+          onPhotosChange={setPhotos}
+          onPhotoRetry={handleRetry}
           submitting={submitting}
           error={error}
           onSubmit={handleSubmit}

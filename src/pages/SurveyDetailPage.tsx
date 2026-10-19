@@ -16,8 +16,11 @@ import { Card } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { ProductCard } from '@/components/product/ProductCard'
+import { PhotoUploader } from '@/components/photo/PhotoUploader'
+import { Lightbox } from '@/components/photo/Lightbox'
 import { getSurvey, deleteSurvey } from '@/lib/surveys'
 import { deleteProduct, duplicateProduct } from '@/lib/products'
+import { uploadPhoto, deletePhoto, createPhotoItem, toPhotoItems, type PhotoItem } from '@/lib/photos'
 import type { Survey } from '@/lib/types'
 
 export function SurveyDetailPage() {
@@ -30,6 +33,8 @@ export function SurveyDetailPage() {
   const [confirmSurveyOpen, setConfirmSurveyOpen] = React.useState(false)
   const [productToDelete, setProductToDelete] = React.useState<string | null>(null)
   const [busy, setBusy] = React.useState(false)
+  const [surveyPhotos, setSurveyPhotos] = React.useState<PhotoItem[]>([])
+  const [preview, setPreview] = React.useState<{ photos: { url: string }[]; index: number } | null>(null)
 
   const load = React.useCallback(async () => {
     if (!id) return
@@ -38,6 +43,7 @@ export function SurveyDetailPage() {
     try {
       const data = await getSurvey(id)
       setSurvey(data)
+      setSurveyPhotos(toPhotoItems(data.survey_photos))
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -86,6 +92,56 @@ export function SurveyDetailPage() {
       setError((e as Error).message)
     } finally {
       setBusy(false)
+    }
+  }
+
+  async function handleAddSurveyPhotos(files: File[]) {
+    if (!id) return
+    const items = files.map(createPhotoItem)
+    setSurveyPhotos((prev) => [...prev, ...items])
+    let order = surveyPhotos.length
+    for (const item of items) {
+      if (!item.file) continue
+      setSurveyPhotos((prev) =>
+        prev.map((p) => (p.key === item.key ? { ...p, status: 'uploading' } : p)),
+      )
+      try {
+        const photo = await uploadPhoto({ surveyId: id, file: item.file, sortOrder: order++ })
+        setSurveyPhotos((prev) =>
+          prev.map((p) => (p.key === item.key ? { key: photo.id, id: photo.id, url: photo.url } : p)),
+        )
+      } catch {
+        setSurveyPhotos((prev) =>
+          prev.map((p) => (p.key === item.key ? { ...p, status: 'error' } : p)),
+        )
+      }
+    }
+  }
+
+  async function handleRemoveSurveyPhoto(key: string) {
+    const target = surveyPhotos.find((p) => p.key === key)
+    if (target?.file) URL.revokeObjectURL(target.url)
+    setSurveyPhotos((prev) => prev.filter((p) => p.key !== key))
+    if (target?.id) {
+      try {
+        await deletePhoto(target.id)
+      } catch {
+        /* 忽略删除失败 */
+      }
+    }
+  }
+
+  async function handleRetrySurveyPhoto(key: string) {
+    const target = surveyPhotos.find((p) => p.key === key)
+    if (!target?.file || !id) return
+    setSurveyPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, status: 'uploading' } : p)))
+    try {
+      const photo = await uploadPhoto({ surveyId: id, file: target.file, sortOrder: surveyPhotos.length })
+      setSurveyPhotos((prev) =>
+        prev.map((p) => (p.key === key ? { key: photo.id, id: photo.id, url: photo.url } : p)),
+      )
+    } catch {
+      setSurveyPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, status: 'error' } : p)))
     }
   }
 
@@ -167,6 +223,17 @@ export function SurveyDetailPage() {
             )}
           </Card>
 
+          <div className="mt-4">
+            <h2 className="mb-3 text-lg font-bold">巡店照片</h2>
+            <PhotoUploader
+              photos={surveyPhotos}
+              onAddFiles={(files) => void handleAddSurveyPhotos(files)}
+              onRemove={(key) => void handleRemoveSurveyPhoto(key)}
+              onRetry={(key) => void handleRetrySurveyPhoto(key)}
+              hint="选填，可拍照或从相册选择多张"
+            />
+          </div>
+
           <div className="mt-6 mb-3 flex items-center justify-between">
             <h2 className="text-lg font-bold">
               产品记录
@@ -207,6 +274,9 @@ export function SurveyDetailPage() {
                 onEdit={() => navigate(`/survey/${survey.id}/product/${p.id}/edit`)}
                 onDuplicate={() => void handleDuplicateProduct(p.id)}
                 onDelete={() => setProductToDelete(p.id)}
+                onPreviewPhoto={(photoIndex) =>
+                  setPreview({ photos: (p.photos ?? []).map((ph) => ({ url: ph.url })), index: photoIndex })
+                }
               />
             ))}
           </div>
@@ -231,6 +301,14 @@ export function SurveyDetailPage() {
         confirmText="删除"
         loading={busy}
         onConfirm={handleDeleteProduct}
+      />
+
+      <Lightbox
+        open={preview !== null}
+        photos={preview?.photos ?? []}
+        index={preview?.index ?? 0}
+        onIndexChange={(i) => setPreview((prev) => (prev ? { ...prev, index: i } : prev))}
+        onClose={() => setPreview(null)}
       />
     </div>
   )

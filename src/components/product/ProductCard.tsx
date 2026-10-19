@@ -8,10 +8,18 @@ interface ProductCardProps {
   onEdit: () => void
   onDuplicate: () => void
   onDelete: () => void
+  onPreviewPhoto?: (index: number) => void
   busy?: boolean
 }
 
-export function ProductCard({ product: p, onEdit, onDuplicate, onDelete, busy }: ProductCardProps) {
+export function ProductCard({
+  product: p,
+  onEdit,
+  onDuplicate,
+  onDelete,
+  onPreviewPhoto,
+  busy,
+}: ProductCardProps) {
   const metrics: { label: string; value: string }[] = []
   if (p.form) metrics.push({ label: '形态', value: p.form })
   if (p.energy_rating) metrics.push({ label: '能效', value: p.energy_rating })
@@ -67,13 +75,14 @@ export function ProductCard({ product: p, onEdit, onDuplicate, onDelete, busy }:
 
       {p.photos && p.photos.length > 0 && (
         <div className="mt-3 flex gap-2 overflow-x-auto no-scrollbar">
-          {p.photos.map((photo) => (
+          {p.photos.map((photo, i) => (
             <img
               key={photo.id}
               src={photo.url}
               alt=""
               loading="lazy"
-              className="h-16 w-16 shrink-0 rounded-[0.8rem] object-cover"
+              onClick={() => onPreviewPhoto?.(i)}
+              className="h-16 w-16 shrink-0 cursor-zoom-in rounded-[0.8rem] object-cover"
             />
           ))}
         </div>

@@ -1,12 +1,13 @@
 import * as React from 'react'
-import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input, Textarea } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { Field } from '@/components/form/Field'
 import { AutocompleteInput } from '@/components/form/AutocompleteInput'
+import { PhotoUploader } from '@/components/photo/PhotoUploader'
 import { useDict } from '@/lib/dict'
 import { cn } from '@/lib/utils'
+import { createPhotoItem, type PhotoItem } from '@/lib/photos'
 import { CATEGORY_LABELS, type ProductCategory, type ProductRecord } from '@/lib/types'
 import type { ProductInput } from '@/lib/products'
 
@@ -31,6 +32,9 @@ const FIELD_FLAGS: Record<ProductCategory, CategoryFieldFlags> = {
 interface ProductFormProps {
   surveyId: string
   initial?: Partial<ProductRecord>
+  photos: PhotoItem[]
+  onPhotosChange: (photos: PhotoItem[]) => void
+  onPhotoRetry?: (key: string) => void
   submitting?: boolean
   error?: string | null
   onSubmit: (values: ProductInput) => void
@@ -42,7 +46,16 @@ function str(v: unknown): string {
   return v === undefined || v === null || v === '' ? '' : String(v)
 }
 
-export function ProductForm({ surveyId, initial, submitting, error, onSubmit }: ProductFormProps) {
+export function ProductForm({
+  surveyId,
+  initial,
+  photos,
+  onPhotosChange,
+  onPhotoRetry,
+  submitting,
+  error,
+  onSubmit,
+}: ProductFormProps) {
   const [category, setCategory] = React.useState<ProductCategory>(initial?.category ?? 'dishwasher')
   const [productName, setProductName] = React.useState(initial?.product_name ?? '')
   const [productParams, setProductParams] = React.useState(initial?.product_params ?? '')
@@ -254,12 +267,19 @@ export function ProductForm({ surveyId, initial, submitting, error, onSubmit }: 
         <Textarea value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="选填" />
       </Field>
 
-      {/* 照片占位（阶段 4） */}
-      <Field label="巡店照片" hint="阶段 4 开放上传（选填）">
-        <div className="flex h-20 items-center justify-center gap-2 rounded-[1.05rem] border border-dashed border-[var(--color-line)] text-sm text-[var(--color-muted)]">
-          <ImagePlus className="h-4 w-4" />
-          照片上传即将开放
-        </div>
+      {/* 照片 */}
+      <Field label="巡店照片" hint="选填，可拍照或从相册选择多张">
+        <PhotoUploader
+          photos={photos}
+          disabled={submitting}
+          onAddFiles={(files) => onPhotosChange([...photos, ...files.map(createPhotoItem)])}
+          onRemove={(key) => {
+            const target = photos.find((p) => p.key === key)
+            if (target?.file) URL.revokeObjectURL(target.url)
+            onPhotosChange(photos.filter((p) => p.key !== key))
+          }}
+          onRetry={onPhotoRetry}
+        />
       </Field>
 
       {error && <p className="text-sm text-[var(--color-accent)]">{error}</p>}
