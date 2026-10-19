@@ -24,7 +24,32 @@ export function saveSurvey(input: SurveyInput) {
 }
 
 export function deleteSurvey(id: string) {
-  return api<{ deleted: boolean }>('deleteSurvey', { id })
+  return api<{ deleted: number }>('deleteSurvey', { id })
+}
+
+export function deleteSurveys(ids: string[]) {
+  return api<{ deleted: number }>('deleteSurveys', { ids })
+}
+
+export interface DeletedSurvey extends Survey {
+  deleted_at: string
+  days_left: number
+}
+
+export function listDeletedSurveys() {
+  return api<DeletedSurvey[]>('listDeletedSurveys')
+}
+
+export function restoreSurvey(id: string) {
+  return api<{ restored: number }>('restoreSurvey', { id })
+}
+
+export function purgeSurvey(id: string) {
+  return api<{ purged: boolean }>('purgeSurvey', { id })
+}
+
+export function emptyRecycleBin() {
+  return api<{ purged: number }>('emptyRecycleBin')
 }
 
 export interface StoreGroup {

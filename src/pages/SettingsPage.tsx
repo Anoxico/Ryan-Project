@@ -1,4 +1,4 @@
-import { Link2, KeyRound, LogOut, ChevronRight, Info } from 'lucide-react'
+import { Link2, KeyRound, LogOut, ChevronRight, Info, Trash } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/card'
@@ -43,10 +43,26 @@ export function SettingsPage() {
       </Card>
 
       <Card className="mt-4">
+        <button
+          onClick={() => navigate('/recycle')}
+          className="flex w-full items-center justify-between"
+        >
+          <span className="flex items-center gap-2 text-sm font-semibold text-white">
+            <Trash className="h-4 w-4" />
+            回收站
+          </span>
+          <span className="flex items-center gap-1 text-sm text-[var(--color-fg-dim)]">
+            7 天内可恢复
+            <ChevronRight className="h-4 w-4" />
+          </span>
+        </button>
+      </Card>
+
+      <Card className="mt-4">
         <div className="flex items-start gap-3">
           <Info className="mt-0.5 h-4 w-4 text-[var(--color-fg-dim)]" />
           <div className="text-sm leading-relaxed text-[var(--color-fg-dim)]">
-            <p className="font-semibold text-white">巡店记录 · 阶段 1</p>
+            <p className="font-semibold text-white">巡店记录</p>
             <p className="mt-1">
               数据保存在你自己的 Google 表格与网盘中，配置仅存于本机浏览器。
             </p>

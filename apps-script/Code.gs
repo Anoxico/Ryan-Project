@@ -10,7 +10,7 @@ const SHARED_TOKEN = 'CHANGE_ME_2026';
 const PHOTO_FOLDER_NAME = 'ShopVisitPhotos';
 
 const SHEET_SCHEMA = {
-  Surveys: ['id', 'visit_date', 'channel', 'customer', 'store', 'remark', 'status', 'created_at', 'updated_at'],
+  Surveys: ['id', 'visit_date', 'channel', 'customer', 'store', 'remark', 'status', 'created_at', 'updated_at', 'deleted_at'],
   Products: ['id', 'survey_id', 'category', 'product_name', 'product_params', 'sample_price',
     'form', 'energy_rating', 'noise_db', 'sets_count', 'extra_points', 'liter', 'air_volume',
     'remark', 'sort_order', 'created_at', 'updated_at'],
@@ -71,6 +71,12 @@ function route(req) {
     getSurvey: function () { return getSurvey(p.id); },
     saveSurvey: function () { return saveSurvey(p); },
     deleteSurvey: function () { return deleteSurvey(p.id); },
+    deleteSurveys: function () { return deleteSurveys(p.ids); },
+    listDeletedSurveys: function () { return listDeletedSurveys(); },
+    restoreSurvey: function () { return restoreSurvey(p.id); },
+    restoreSurveys: function () { return restoreSurveys(p.ids); },
+    purgeSurvey: function () { return purgeSurvey(p.id); },
+    emptyRecycleBin: function () { return emptyRecycleBin(); },
     saveProduct: function () { return saveProduct(p); },
     deleteProduct: function () { return deleteProduct(p.id); },
     duplicateProduct: function () { return duplicateProduct(p.id); },
@@ -111,6 +117,15 @@ function init() {
     if (existing.length === 0) {
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
       sheet.setFrozenRows(1);
+    } else {
+      // 增量补列：为新版本新增的字段补充表头
+      headers.forEach(function (h) {
+        if (existing.indexOf(h) < 0) {
+          const col = sheet.getLastColumn() + 1;
+          sheet.getRange(1, col).setValue(h);
+          existing.push(h);
+        }
+      });
     }
   });
   // visit_date / created_at 等列设为纯文本，避免被表格自动转成日期
@@ -211,6 +226,12 @@ function toDateString(v) {
   return String(v).slice(0, 10);
 }
 
+function toIso(v) {
+  if (!v) return '';
+  if (v instanceof Date) return v.toISOString();
+  return String(v);
+}
+
 /* ============================================================
  *  字典
  * ============================================================ */
@@ -264,7 +285,8 @@ function dictDelete(id) { return { deleted: deleteRowById('Dict', id) }; }
 
 function listSurveys(p) {
   p = p || {};
-  let surveys = readAll('Surveys');
+  purgeExpired();
+  let surveys = readAll('Surveys').filter(function (s) { return !s.deleted_at; });
   surveys.forEach(function (s) { s.visit_date = toDateString(s.visit_date); });
 
   if (p.dateFrom) surveys = surveys.filter(function (s) { return s.visit_date >= p.dateFrom; });
@@ -382,6 +404,73 @@ function validateSurvey(p) {
 }
 
 function deleteSurvey(id) {
+  return deleteSurveys([id]);
+}
+
+// 软删除：移入回收站（保留 7 天）
+function deleteSurveys(ids) {
+  const list = (ids || []).filter(Boolean);
+  list.forEach(function (id) { updateRowById('Surveys', id, { deleted_at: nowIso() }); });
+  return { deleted: list.length };
+}
+
+const RETENTION_DAYS = 7;
+
+function daysLeft(deletedAt) {
+  const t = new Date(deletedAt).getTime();
+  if (isNaN(t)) return 0;
+  const ms = RETENTION_DAYS * 24 * 3600 * 1000 - (Date.now() - t);
+  return Math.max(0, Math.ceil(ms / (24 * 3600 * 1000)));
+}
+
+function listDeletedSurveys() {
+  purgeExpired();
+  const surveys = readAll('Surveys').filter(function (s) { return !!s.deleted_at; });
+  surveys.forEach(function (s) {
+    s.visit_date = toDateString(s.visit_date);
+    s.deleted_at = toIso(s.deleted_at);
+    s.days_left = daysLeft(s.deleted_at);
+  });
+  surveys.sort(function (a, b) { return String(b.deleted_at).localeCompare(String(a.deleted_at)); });
+  return surveys.map(stripRow_);
+}
+
+function restoreSurvey(id) {
+  return restoreSurveys([id]);
+}
+
+function restoreSurveys(ids) {
+  const list = (ids || []).filter(Boolean);
+  list.forEach(function (id) { updateRowById('Surveys', id, { deleted_at: '' }); });
+  return { restored: list.length };
+}
+
+// 彻底删除单条（含产品、照片、Drive 文件）
+function purgeSurvey(id) {
+  hardDeleteSurvey(id);
+  return { purged: true };
+}
+
+function emptyRecycleBin() {
+  const ids = readAll('Surveys').filter(function (s) { return !!s.deleted_at; }).map(function (s) { return s.id; });
+  ids.forEach(function (id) { hardDeleteSurvey(id); });
+  return { purged: ids.length };
+}
+
+// 自动清理超过保留期的回收站记录
+function purgeExpired() {
+  const now = Date.now();
+  readAll('Surveys').forEach(function (s) {
+    if (!s.deleted_at) return;
+    const t = new Date(toIso(s.deleted_at)).getTime();
+    if (!isNaN(t) && now - t > RETENTION_DAYS * 24 * 3600 * 1000) {
+      hardDeleteSurvey(s.id);
+    }
+  });
+}
+
+// 真正从表格与网盘移除
+function hardDeleteSurvey(id) {
   const products = readAll('Products').filter(function (pr) { return String(pr.survey_id) === String(id); });
   const photos = readAll('Photos');
   products.forEach(function (pr) {
@@ -392,7 +481,6 @@ function deleteSurvey(id) {
   photos.filter(function (ph) { return String(ph.survey_id) === String(id); })
     .forEach(function (ph) { deleteDriveFile_(ph.drive_file_id); deleteRowById('Photos', ph.id); });
   deleteRowById('Surveys', id);
-  return { deleted: true };
 }
 
 /* ============================================================
@@ -552,8 +640,11 @@ function deleteDriveFile_(fileId) {
  * ============================================================ */
 
 function statsAll() {
-  const surveys = readAll('Surveys');
-  const products = readAll('Products');
+  purgeExpired();
+  const surveys = readAll('Surveys').filter(function (s) { return !s.deleted_at; });
+  const validIds = {};
+  surveys.forEach(function (s) { validIds[s.id] = true; });
+  const products = readAll('Products').filter(function (pr) { return validIds[pr.survey_id]; });
   return {
     byChannel: countByField(surveys, 'channel'),
     byCustomer: countByField(surveys, 'customer'),
@@ -606,10 +697,16 @@ function energyRatio(products) {
  * ============================================================ */
 
 function exportData() {
-  const surveys = readAll('Surveys');
+  purgeExpired();
+  const surveys = readAll('Surveys').filter(function (s) { return !s.deleted_at; });
   surveys.forEach(function (s) { s.visit_date = toDateString(s.visit_date); });
-  const products = readAll('Products');
-  const photos = readAll('Photos');
+  const validIds = {};
+  surveys.forEach(function (s) { validIds[s.id] = true; });
+  const products = readAll('Products').filter(function (pr) { return validIds[pr.survey_id]; });
+  const photos = readAll('Photos').filter(function (ph) {
+    return (ph.survey_id && validIds[ph.survey_id]) ||
+      (ph.product_id && products.some(function (pr) { return pr.id === ph.product_id; }));
+  });
   const dict = readAll('Dict');
   return {
     surveys: surveys.map(stripRow_),
