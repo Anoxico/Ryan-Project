@@ -26,6 +26,9 @@ const CATEGORY_FIELDS = {
 };
 const SPECIAL_FIELDS = ['form', 'energy_rating', 'noise_db', 'sets_count', 'extra_points', 'liter', 'air_volume'];
 
+const AI_DEFAULT_PROVIDER = 'gemini';
+const AI_DEFAULT_MODEL = 'gemini-2.5-flash';
+
 /* ============================================================
  *  入口
  * ============================================================ */
@@ -86,7 +89,10 @@ function route(req) {
     dictSave: function () { return dictSave(p); },
     dictDelete: function () { return dictDelete(p.id); },
     stats: function () { return statsAll(); },
-    exportData: function () { return exportData(); }
+    exportData: function () { return exportData(); },
+    recognizeLabel: function () { return recognizeLabel(p); },
+    setAiConfig: function () { return setAiConfig(p); },
+    aiConfigStatus: function () { return aiConfigStatus(); }
   };
   const fn = handlers[action];
   if (!fn) return { ok: false, error: '未知 action: ' + action };
@@ -713,5 +719,186 @@ function exportData() {
     products: products.map(stripRow_),
     photos: photos.map(stripRow_),
     dict: dict.map(stripRow_)
+  };
+}
+
+/* ============================================================
+ *  AI 识别（铭牌参数）
+ * ============================================================ */
+
+function aiProps_() { return PropertiesService.getScriptProperties(); }
+
+function getAiConfig_() {
+  const props = aiProps_();
+  return {
+    provider: props.getProperty('AI_PROVIDER') || AI_DEFAULT_PROVIDER,
+    apiKey: props.getProperty('AI_API_KEY') || '',
+    model: props.getProperty('AI_MODEL') || AI_DEFAULT_MODEL,
+    baseUrl: props.getProperty('AI_BASE_URL') || ''
+  };
+}
+
+function aiConfigStatus() {
+  const cfg = getAiConfig_();
+  return { configured: !!cfg.apiKey, provider: cfg.provider, model: cfg.model };
+}
+
+function setAiConfig(p) {
+  if (p.provider && ['gemini', 'openai'].indexOf(p.provider) < 0) throw new Error('提供方无效');
+  const props = aiProps_();
+  if (p.provider) props.setProperty('AI_PROVIDER', p.provider);
+  if (p.model) props.setProperty('AI_MODEL', p.model);
+  if (p.baseUrl !== undefined) props.setProperty('AI_BASE_URL', p.baseUrl || '');
+  // 仅当提供了非空 Key 时才覆盖，留空表示不修改已保存的 Key
+  if (p.apiKey) props.setProperty('AI_API_KEY', p.apiKey);
+  return aiConfigStatus();
+}
+
+function recognizeLabel(p) {
+  if (!p || !p.dataBase64) throw new Error('缺少图片数据');
+  const cfg = getAiConfig_();
+  if (!cfg.apiKey) throw new Error('尚未配置识别服务，请到设置页填写 API Key');
+  const prompt = aiBuildPrompt_(p.category || '');
+  const text = cfg.provider === 'openai'
+    ? aiCallOpenAI_(cfg, p, prompt)
+    : aiCallGemini_(cfg, p, prompt);
+  return aiNormalize_(aiParseJson_(text));
+}
+
+function aiBuildPrompt_(category) {
+  const names = { dishwasher: '洗碗机', water_heater: '热水器', range_hood: '抽油烟机' };
+  const label = names[category] || '家电产品';
+  return [
+    '你是家电巡店数据录入助手。请阅读这张产品铭牌/参数标签照片，抽取' + label + '的参数。',
+    '只根据图片中清晰可见的文字作答；看不清或图片中没有的字段一律置为 null，绝对不要猜测。',
+    '严格输出如下 JSON 结构：',
+    '{',
+    '  "model": 型号字符串或 null,',
+    '  "params": 其他规格键值行数组，如 ["额定电压：220V","容量：12套"]，没有则 [],',
+    '  "noise_db": 噪音(分贝)数字或 null,',
+    '  "sets_count": 套数数字或 null,',
+    '  "liter": 容量升数数字或 null,',
+    '  "air_volume": 风量数字或 null,',
+    '  "confidence": "high" | "medium" | "low",',
+    '  "notes": 不确定或模糊之处的中文说明，没有则 null',
+    '}',
+    '只输出 JSON，不要任何解释或代码块。'
+  ].join('\n');
+}
+
+function aiSchema_() {
+  return {
+    type: 'object',
+    properties: {
+      model: { type: 'string', nullable: true },
+      params: { type: 'array', items: { type: 'string' } },
+      noise_db: { type: 'number', nullable: true },
+      sets_count: { type: 'number', nullable: true },
+      liter: { type: 'number', nullable: true },
+      air_volume: { type: 'number', nullable: true },
+      confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+      notes: { type: 'string', nullable: true }
+    },
+    required: ['model', 'params', 'confidence']
+  };
+}
+
+function aiCallGemini_(cfg, p, prompt) {
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/'
+    + encodeURIComponent(cfg.model) + ':generateContent?key=' + encodeURIComponent(cfg.apiKey);
+  const body = {
+    contents: [{
+      parts: [
+        { inline_data: { mime_type: p.mimeType || 'image/jpeg', data: p.dataBase64 } },
+        { text: prompt }
+      ]
+    }],
+    generationConfig: {
+      responseMimeType: 'application/json',
+      responseSchema: aiSchema_(),
+      temperature: 0
+    }
+  };
+  const res = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(body),
+    muteHttpExceptions: true
+  });
+  const status = res.getResponseCode();
+  const text = res.getContentText();
+  if (status < 200 || status >= 300) throw new Error('识别服务错误(' + status + ')：' + text);
+  const json = JSON.parse(text);
+  const cand = json.candidates && json.candidates[0];
+  const parts = cand && cand.content && cand.content.parts;
+  if (!parts || !parts.length || !parts[0].text) throw new Error('识别服务未返回内容');
+  return parts[0].text;
+}
+
+function aiCallOpenAI_(cfg, p, prompt) {
+  if (!cfg.baseUrl) throw new Error('请先在设置页填写 Base URL');
+  const url = cfg.baseUrl.replace(/\/+$/, '') + '/chat/completions';
+  const messages = [{
+    role: 'user',
+    content: [
+      { type: 'text', text: prompt },
+      { type: 'image_url', image_url: { url: 'data:' + (p.mimeType || 'image/jpeg') + ';base64,' + p.dataBase64 } }
+    ]
+  }];
+  function call(withFormat) {
+    const body = { model: cfg.model, messages: messages, temperature: 0 };
+    if (withFormat) body.response_format = { type: 'json_object' };
+    const res = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { Authorization: 'Bearer ' + cfg.apiKey },
+      payload: JSON.stringify(body),
+      muteHttpExceptions: true
+    });
+    return { status: res.getResponseCode(), text: res.getContentText() };
+  }
+  let r = call(true);
+  // 部分兼容端点不支持 response_format，失败时去掉再试一次
+  if (r.status < 200 || r.status >= 300) r = call(false);
+  if (r.status < 200 || r.status >= 300) throw new Error('识别服务错误(' + r.status + ')：' + r.text);
+  const json = JSON.parse(r.text);
+  const choice = json.choices && json.choices[0];
+  const content = choice && choice.message && choice.message.content;
+  if (typeof content !== 'string' || !content) throw new Error('识别服务未返回内容');
+  return content;
+}
+
+function aiParseJson_(text) {
+  let s = String(text || '').trim();
+  const fence = s.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  if (fence) s = fence[1];
+  const start = s.indexOf('{');
+  const end = s.lastIndexOf('}');
+  if (start >= 0 && end > start) s = s.slice(start, end + 1);
+  try {
+    return JSON.parse(s);
+  } catch (e) {
+    throw new Error('识别结果无法解析');
+  }
+}
+
+function aiNormalize_(raw) {
+  function str(v) { return (v === null || v === undefined || String(v).trim() === '') ? null : String(v).trim(); }
+  function num(v) { if (v === null || v === undefined || v === '') return null; const n = Number(v); return (isFinite(n) && n >= 0) ? n : null; }
+  const o = (raw && typeof raw === 'object') ? raw : {};
+  const params = [];
+  if (Array.isArray(o.params)) {
+    o.params.forEach(function (x) { const s = String(x).trim(); if (s) params.push(s); });
+  }
+  const conf = (o.confidence === 'high' || o.confidence === 'medium' || o.confidence === 'low') ? o.confidence : 'low';
+  return {
+    model: str(o.model),
+    params: params,
+    noise_db: num(o.noise_db),
+    sets_count: num(o.sets_count),
+    liter: num(o.liter),
+    air_volume: num(o.air_volume),
+    confidence: conf,
+    notes: str(o.notes)
   };
 }
