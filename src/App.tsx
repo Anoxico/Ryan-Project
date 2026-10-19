@@ -9,6 +9,7 @@ import { SurveyDetailPage } from '@/pages/SurveyDetailPage'
 import { StoreDetailPage } from '@/pages/StoreDetailPage'
 import { ProductEditPage } from '@/pages/ProductEditPage'
 import { RecycleBinPage } from '@/pages/RecycleBinPage'
+import { FilterPage } from '@/pages/FilterPage'
 import { useAppConfig } from '@/lib/app-config'
 
 function Router() {
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/survey/new" element={<SurveyEditPage />} />
       <Route path="/store/:storeName" element={<StoreDetailPage />} />
       <Route path="/recycle" element={<RecycleBinPage />} />
+      <Route path="/filter" element={<FilterPage />} />
       <Route path="/survey/:id" element={<SurveyDetailPage />} />
       <Route path="/survey/:id/edit" element={<SurveyEditPage />} />
       <Route path="/survey/:surveyId/product/new" element={<ProductEditPage />} />

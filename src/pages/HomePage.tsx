@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Plus, Store, RefreshCw } from 'lucide-react'
+import { Plus, Store, RefreshCw, Search } from 'lucide-react'
 import { PageHeader } from '@/components/layout/AppShell'
 import { StoreCard } from '@/components/store/StoreCard'
 import { Button } from '@/components/ui/button'
@@ -41,13 +41,22 @@ export function HomePage() {
         subtitle={loading ? '加载中…' : `${stores.length} 家门店 · ${surveys.length} 次巡店`}
         action={
           !loading && (
-            <button
-              onClick={() => void load()}
-              className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg-dim)]"
-              aria-label="刷新"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/filter"
+                className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg-dim)]"
+                aria-label="筛选与搜索"
+              >
+                <Search className="h-4 w-4" />
+              </Link>
+              <button
+                onClick={() => void load()}
+                className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg-dim)]"
+                aria-label="刷新"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            </div>
           )
         }
       />
