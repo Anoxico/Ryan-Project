@@ -50,7 +50,23 @@ export function AiSettingsCard() {
       setApiKey('')
       setMessage('已保存')
     } catch (e) {
-      setError((e as Error).message)
+      setError((e as Error).message || '保存失败')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleClearKey() {
+    setSaving(true)
+    setError(null)
+    setMessage(null)
+    try {
+      const s = await setAiConfig({ provider, apiKey: '', model, baseUrl, clearApiKey: true })
+      setStatus(s)
+      setApiKey('')
+      setMessage('已清除 API Key')
+    } catch (e) {
+      setError((e as Error).message || '清除失败')
     } finally {
       setSaving(false)
     }
@@ -61,7 +77,8 @@ export function AiSettingsCard() {
       <div className="space-y-1">
         <CardTitle>AI 识别</CardTitle>
         <CardDescription>
-          铭牌拍照识别填表所用的模型。API Key 仅存于你的 Google 账号后端，不会回传浏览器。
+          铭牌拍照识别填表所用的模型。识别时铭牌图片会发送给所选模型提供方（Google Gemini
+          或你配置的 OpenAI 兼容端点）；API Key 仅存于你的 Google 账号后端，不会回传浏览器。
         </CardDescription>
       </div>
 
@@ -108,6 +125,17 @@ export function AiSettingsCard() {
       <Button variant="outline" className="w-full" onClick={handleSave} disabled={saving || loading || !!loadError}>
         {saving && <Spinner />} 保存 AI 配置
       </Button>
+
+      {status?.configured && (
+        <Button
+          variant="destructive"
+          className="w-full"
+          onClick={handleClearKey}
+          disabled={saving || loading || !!loadError}
+        >
+          {saving && <Spinner />} 清除 API Key
+        </Button>
+      )}
     </Card>
   )
 }

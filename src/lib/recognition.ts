@@ -14,7 +14,7 @@ function toStrOrNull(v: unknown): string | null {
   return s === '' ? null : s
 }
 
-function toPositiveOrNull(v: unknown): number | null {
+function toNonNegativeOrNull(v: unknown): number | null {
   if (v === null || v === undefined || v === '') return null
   const n = Number(v)
   if (!Number.isFinite(n) || n < 0) return null
@@ -23,13 +23,17 @@ function toPositiveOrNull(v: unknown): number | null {
 
 function toStringArray(v: unknown): string[] {
   if (!Array.isArray(v)) return []
-  return v.map((x) => String(x).trim()).filter((x) => x !== '')
+  return v
+    .filter((x): x is string => typeof x === 'string')
+    .map((x) => x.trim())
+    .filter((x) => x !== '')
 }
 
 function normalizeConfidence(v: unknown): RecognitionResult['confidence'] {
   return v === 'high' || v === 'medium' || v === 'low' ? v : 'low'
 }
 
+// 与后端 apps-script/Code.gs 的 aiNormalize_ 保持一致，改动需同步
 export function parseRecognitionResult(raw: unknown): RecognitionResult {
   if (!raw || typeof raw !== 'object') {
     return {
@@ -47,10 +51,10 @@ export function parseRecognitionResult(raw: unknown): RecognitionResult {
   return {
     model: toStrOrNull(o.model),
     params: toStringArray(o.params),
-    noise_db: toPositiveOrNull(o.noise_db),
-    sets_count: toPositiveOrNull(o.sets_count),
-    liter: toPositiveOrNull(o.liter),
-    air_volume: toPositiveOrNull(o.air_volume),
+    noise_db: toNonNegativeOrNull(o.noise_db),
+    sets_count: toNonNegativeOrNull(o.sets_count),
+    liter: toNonNegativeOrNull(o.liter),
+    air_volume: toNonNegativeOrNull(o.air_volume),
     confidence: normalizeConfidence(o.confidence),
     notes: toStrOrNull(o.notes),
   }
@@ -72,7 +76,7 @@ export function recognitionToFormPatch(
   const patch: RecognitionFormPatch = {}
 
   const lines = result.params.slice()
-  if (result.model && !lines.some((l) => l.indexOf(result.model as string) >= 0)) {
+  if (result.model && !lines.some((l) => l === `型号：${result.model}` || l === result.model)) {
     lines.unshift(`型号：${result.model}`)
   }
   if (lines.length > 0) patch.productParams = lines.join('\n')

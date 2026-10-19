@@ -36,6 +36,8 @@ export function LabelRecognizer({
   const fileRef = React.useRef<File | null>(null)
   const itemRef = React.useRef<PhotoItem | null>(null)
   const reqIdRef = React.useRef(0)
+  const photosRef = React.useRef(photos)
+  photosRef.current = photos
   const [status, setStatus] = React.useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [result, setResult] = React.useState<RecognitionResult | null>(null)
   const [error, setError] = React.useState<string | null>(null)
@@ -47,17 +49,30 @@ export function LabelRecognizer({
     setResult(null)
     setError(null)
     setSavePhoto(false)
-    itemRef.current = null
+    removeSavedPhoto()
   }, [category])
+
+  function removeSavedPhoto() {
+    const key = itemRef.current?.key
+    if (!key) return
+    const target = photosRef.current.find((p) => p.key === key)
+    if (target?.file) URL.revokeObjectURL(target.url)
+    onPhotosChange(photosRef.current.filter((p) => p.key !== key))
+    itemRef.current = null
+  }
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
-    const reqId = ++reqIdRef.current
+    removeSavedPhoto()
     fileRef.current = file
-    itemRef.current = null
     setSavePhoto(false)
+    await recognize(file)
+  }
+
+  async function recognize(file: File) {
+    const reqId = ++reqIdRef.current
     setResult(null)
     setError(null)
     setStatus('loading')
@@ -70,7 +85,7 @@ export function LabelRecognizer({
       setStatus('done')
     } catch (err) {
       if (reqId !== reqIdRef.current) return
-      setError((err as Error).message)
+      setError((err as Error).message || '识别失败')
       setStatus('error')
     }
   }
@@ -113,11 +128,26 @@ export function LabelRecognizer({
         type="file"
         accept="image/*"
         capture="environment"
+        aria-label="选择铭牌图片"
         className="hidden"
         onChange={handleFile}
       />
 
       {error && <p className="text-sm text-[var(--color-accent)]">{error}</p>}
+
+      {status === 'error' && fileRef.current && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={disabled}
+          onClick={() => {
+            if (fileRef.current) recognize(fileRef.current)
+          }}
+        >
+          重试
+        </Button>
+      )}
 
       {status === 'done' && result && (
         <div className="glass space-y-2 rounded-[1.05rem] p-4 text-sm">

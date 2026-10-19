@@ -740,7 +740,8 @@ function getAiConfig_() {
 
 function aiConfigStatus() {
   const cfg = getAiConfig_();
-  return { configured: !!cfg.apiKey, provider: cfg.provider, model: cfg.model, baseUrl: cfg.baseUrl };
+  const ready = !!cfg.apiKey && (cfg.provider !== 'openai' || !!cfg.baseUrl);
+  return { configured: ready, provider: cfg.provider, model: cfg.model, baseUrl: cfg.baseUrl };
 }
 
 function setAiConfig(p) {
@@ -749,6 +750,7 @@ function setAiConfig(p) {
   if (p.provider) props.setProperty('AI_PROVIDER', p.provider);
   if (p.model) props.setProperty('AI_MODEL', p.model);
   if (p.baseUrl !== undefined) props.setProperty('AI_BASE_URL', p.baseUrl || '');
+  if (p.clearApiKey) props.deleteProperty('AI_API_KEY');
   // 仅当提供了非空 Key 时才覆盖，留空表示不修改已保存的 Key
   if (p.apiKey) props.setProperty('AI_API_KEY', p.apiKey);
   return aiConfigStatus();
@@ -805,7 +807,7 @@ function aiSchema_() {
 
 function aiCallGemini_(cfg, p, prompt) {
   const url = 'https://generativelanguage.googleapis.com/v1beta/models/'
-    + encodeURIComponent(cfg.model) + ':generateContent?key=' + encodeURIComponent(cfg.apiKey);
+    + encodeURIComponent(cfg.model) + ':generateContent';
   const body = {
     contents: [{
       parts: [
@@ -822,6 +824,7 @@ function aiCallGemini_(cfg, p, prompt) {
   const res = UrlFetchApp.fetch(url, {
     method: 'post',
     contentType: 'application/json',
+    headers: { 'x-goog-api-key': cfg.apiKey },
     payload: JSON.stringify(body),
     muteHttpExceptions: true
   });
@@ -837,6 +840,7 @@ function aiCallGemini_(cfg, p, prompt) {
 
 function aiCallOpenAI_(cfg, p, prompt) {
   if (!cfg.baseUrl) throw new Error('请先在设置页填写 Base URL');
+  if (!/^https?:\/\//i.test(cfg.baseUrl)) throw new Error('Base URL 需以 http(s):// 开头');
   const url = cfg.baseUrl.replace(/\/+$/, '') + '/chat/completions';
   const messages = [{
     role: 'user',
@@ -863,7 +867,10 @@ function aiCallOpenAI_(cfg, p, prompt) {
   if (r.status < 200 || r.status >= 300) throw new Error('识别服务错误(' + r.status + ')：' + r.text);
   const json = JSON.parse(r.text);
   const choice = json.choices && json.choices[0];
-  const content = choice && choice.message && choice.message.content;
+  let content = choice && choice.message && choice.message.content;
+  if (Array.isArray(content)) {
+    content = content.map(function (part) { return (part && part.text) || ''; }).join('');
+  }
   if (typeof content !== 'string' || !content) throw new Error('识别服务未返回内容');
   return content;
 }
@@ -882,13 +889,14 @@ function aiParseJson_(text) {
   }
 }
 
+// 与前端 src/lib/recognition.ts 的 parseRecognitionResult 保持一致，改动需同步
 function aiNormalize_(raw) {
   function str(v) { return (v === null || v === undefined || String(v).trim() === '') ? null : String(v).trim(); }
   function num(v) { if (v === null || v === undefined || v === '') return null; const n = Number(v); return (isFinite(n) && n >= 0) ? n : null; }
   const o = (raw && typeof raw === 'object') ? raw : {};
   const params = [];
   if (Array.isArray(o.params)) {
-    o.params.forEach(function (x) { const s = String(x).trim(); if (s) params.push(s); });
+    o.params.forEach(function (x) { if (typeof x === 'string') { const s = x.trim(); if (s) params.push(s); } });
   }
   const conf = (o.confidence === 'high' || o.confidence === 'medium' || o.confidence === 'low') ? o.confidence : 'low';
   return {

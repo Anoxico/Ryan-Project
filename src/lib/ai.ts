@@ -27,6 +27,7 @@ export interface AiConfigInput {
   apiKey: string
   model: string
   baseUrl: string
+  clearApiKey?: boolean
 }
 
 export function setAiConfig(input: AiConfigInput) {
