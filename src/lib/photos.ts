@@ -36,7 +36,7 @@ export async function compressImage(file: File): Promise<File> {
   }
 }
 
-async function toBase64(file: File): Promise<{ data: string; mime: string }> {
+export async function toBase64(file: File): Promise<{ data: string; mime: string }> {
   const buffer = await file.arrayBuffer()
   const bytes = new Uint8Array(buffer)
   let binary = ''
