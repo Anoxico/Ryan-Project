@@ -17,6 +17,7 @@ export function AiSettingsCard() {
   const [saving, setSaving] = React.useState(false)
   const [message, setMessage] = React.useState<string | null>(null)
   const [error, setError] = React.useState<string | null>(null)
+  const [loadError, setLoadError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     let alive = true
@@ -28,7 +29,9 @@ export function AiSettingsCard() {
         setModel(s.model)
         setBaseUrl(s.baseUrl ?? '')
       })
-      .catch(() => {})
+      .catch((e) => {
+        if (alive) setLoadError((e as Error).message || '加载 AI 配置失败')
+      })
       .finally(() => {
         if (alive) setLoading(false)
       })
@@ -100,8 +103,9 @@ export function AiSettingsCard() {
 
       {message && <p className="text-sm text-[var(--color-fg-dim)]">{message}</p>}
       {error && <p className="text-sm text-[var(--color-accent)]">{error}</p>}
+      {loadError && <p className="text-sm text-[var(--color-accent)]">{loadError}，请刷新页面重试</p>}
 
-      <Button variant="outline" className="w-full" onClick={handleSave} disabled={saving || loading}>
+      <Button variant="outline" className="w-full" onClick={handleSave} disabled={saving || loading || !!loadError}>
         {saving && <Spinner />} 保存 AI 配置
       </Button>
     </Card>
