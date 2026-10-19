@@ -1,12 +1,24 @@
 import * as React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Pencil, Trash2, CalendarDays, Store, User, Radio, Package } from 'lucide-react'
+import {
+  ArrowLeft,
+  Pencil,
+  Trash2,
+  CalendarDays,
+  Store,
+  User,
+  Radio,
+  Package,
+  Plus,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { ProductCard } from '@/components/product/ProductCard'
 import { getSurvey, deleteSurvey } from '@/lib/surveys'
-import { CATEGORY_LABELS, type Survey } from '@/lib/types'
+import { deleteProduct, duplicateProduct } from '@/lib/products'
+import type { Survey } from '@/lib/types'
 
 export function SurveyDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -14,37 +26,66 @@ export function SurveyDetailPage() {
   const [survey, setSurvey] = React.useState<Survey | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
-  const [confirmOpen, setConfirmOpen] = React.useState(false)
-  const [deleting, setDeleting] = React.useState(false)
 
-  React.useEffect(() => {
+  const [confirmSurveyOpen, setConfirmSurveyOpen] = React.useState(false)
+  const [productToDelete, setProductToDelete] = React.useState<string | null>(null)
+  const [busy, setBusy] = React.useState(false)
+
+  const load = React.useCallback(async () => {
     if (!id) return
-    let alive = true
-    ;(async () => {
-      try {
-        const data = await getSurvey(id)
-        if (alive) setSurvey(data)
-      } catch (e) {
-        if (alive) setError((e as Error).message)
-      } finally {
-        if (alive) setLoading(false)
-      }
-    })()
-    return () => {
-      alive = false
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await getSurvey(id)
+      setSurvey(data)
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setLoading(false)
     }
   }, [id])
 
-  async function handleDelete() {
+  React.useEffect(() => {
+    void load()
+  }, [load])
+
+  async function handleDeleteSurvey() {
     if (!id) return
-    setDeleting(true)
+    setBusy(true)
     try {
       await deleteSurvey(id)
       navigate('/', { replace: true })
     } catch (e) {
-      setDeleting(false)
-      setConfirmOpen(false)
+      setBusy(false)
+      setConfirmSurveyOpen(false)
       setError((e as Error).message)
+    }
+  }
+
+  async function handleDeleteProduct() {
+    if (!productToDelete) return
+    setBusy(true)
+    try {
+      await deleteProduct(productToDelete)
+      setProductToDelete(null)
+      await load()
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleDuplicateProduct(productId: string) {
+    if (busy) return
+    setBusy(true)
+    try {
+      await duplicateProduct(productId)
+      await load()
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -68,7 +109,7 @@ export function SurveyDetailPage() {
               <Pencil className="h-4 w-4" />
             </button>
             <button
-              onClick={() => setConfirmOpen(true)}
+              onClick={() => setConfirmSurveyOpen(true)}
               className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-accent)]"
               aria-label="删除"
             >
@@ -127,66 +168,69 @@ export function SurveyDetailPage() {
           </Card>
 
           <div className="mt-6 mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-bold">产品记录</h2>
-            <span className="text-sm text-[var(--color-fg-dim)]">
-              {survey.products?.length ?? 0} 个
-            </span>
+            <h2 className="text-lg font-bold">
+              产品记录
+              <span className="ml-2 text-sm font-medium text-[var(--color-fg-dim)]">
+                {survey.products?.length ?? 0} 个
+              </span>
+            </h2>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => navigate(`/survey/${survey.id}/product/new`)}
+            >
+              <Plus className="h-4 w-4" /> 添加产品
+            </Button>
           </div>
+
+          {error && survey && <p className="mb-3 text-sm text-[var(--color-accent)]">{error}</p>}
 
           {(!survey.products || survey.products.length === 0) && (
             <Card className="flex flex-col items-center py-10 text-center">
               <Package className="h-7 w-7 text-[var(--color-muted)]" />
-              <p className="mt-3 text-sm text-[var(--color-fg-dim)]">
-                还没有产品记录，阶段 3 开放添加
-              </p>
+              <p className="mt-3 text-sm text-[var(--color-fg-dim)]">还没有产品记录</p>
+              <Button
+                className="mt-4"
+                onClick={() => navigate(`/survey/${survey.id}/product/new`)}
+              >
+                <Plus className="h-4 w-4" /> 添加第一条产品
+              </Button>
             </Card>
           )}
 
           <div className="space-y-3">
             {survey.products?.map((p) => (
-              <Card key={p.id} className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <span className="inline-block rounded-full bg-white/[0.06] px-2 py-0.5 text-[0.68rem] font-semibold text-[var(--color-fg-dim)]">
-                      {CATEGORY_LABELS[p.category]}
-                    </span>
-                    <h3 className="mt-1.5 truncate font-bold">{p.product_name}</h3>
-                    <p className="mt-0.5 text-xs text-[var(--color-fg-dim)]">
-                      {[p.form, p.energy_rating].filter(Boolean).join(' · ') || '—'}
-                    </p>
-                  </div>
-                  <p className="shrink-0 text-right font-bold tabular-nums">
-                    ¥{Number(p.sample_price || 0).toFixed(2)}
-                  </p>
-                </div>
-
-                {p.photos && p.photos.length > 0 && (
-                  <div className="mt-3 flex gap-2 overflow-x-auto no-scrollbar">
-                    {p.photos.map((photo) => (
-                      <img
-                        key={photo.id}
-                        src={photo.url}
-                        alt=""
-                        loading="lazy"
-                        className="h-16 w-16 shrink-0 rounded-[0.8rem] object-cover"
-                      />
-                    ))}
-                  </div>
-                )}
-              </Card>
+              <ProductCard
+                key={p.id}
+                product={p}
+                busy={busy}
+                onEdit={() => navigate(`/survey/${survey.id}/product/${p.id}/edit`)}
+                onDuplicate={() => void handleDuplicateProduct(p.id)}
+                onDelete={() => setProductToDelete(p.id)}
+              />
             ))}
           </div>
         </>
       )}
 
       <ConfirmDialog
-        open={confirmOpen}
-        onOpenChange={setConfirmOpen}
+        open={confirmSurveyOpen}
+        onOpenChange={setConfirmSurveyOpen}
         title="删除这条巡店单？"
         description="巡店单下的所有产品记录和照片都会一并删除，且无法恢复。"
         confirmText="删除"
-        loading={deleting}
-        onConfirm={handleDelete}
+        loading={busy}
+        onConfirm={handleDeleteSurvey}
+      />
+
+      <ConfirmDialog
+        open={!!productToDelete}
+        onOpenChange={(open) => !open && setProductToDelete(null)}
+        title="删除这条产品记录？"
+        description="该产品记录及其照片将被删除，无法恢复。"
+        confirmText="删除"
+        loading={busy}
+        onConfirm={handleDeleteProduct}
       />
     </div>
   )
