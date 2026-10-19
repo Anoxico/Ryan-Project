@@ -30,7 +30,7 @@
 | `--color-brand-text` | `#0077A8` | 链接、小号蓝字 |
 | `--color-brand-50` | `#EAF8FD` | 选中胶囊 |
 | `--color-brand-100` | `#D6F1FB` | 虚线框、进度轨道 |
-| `--color-bg` | `#EFF5FA` | 页面背景 |
+| `--color-bg` | `#F2F7FB` | 页面背景 |
 | `--color-surface` | `#FFFFFF` | 卡片、输入框、弹层 |
 | `--color-surface-2` | `#EDF3F8` | 次级填充、胶囊 |
 | `--color-surface-3` | `#DCE7F1` | 强次级填充 |
@@ -205,7 +205,7 @@ Expected: 非零退出并列出 `--color-accent`、`text-black`、`color-scheme:
   --color-brand-100: #d6f1fb;
 
   /* 中性 */
-  --color-bg: #eff5fa;
+  --color-bg: #f2f7fb;
   --color-surface: #ffffff;
   --color-surface-2: #edf3f8;
   --color-surface-3: #dce7f1;
@@ -400,7 +400,7 @@ Expected: 非零退出并列出 `--color-accent`、`text-black`、`color-scheme:
 
 `vite.config.ts` manifest：
 - `theme_color: '#007FB0'`
-- `background_color: '#EFF5FA'`
+- `background_color: '#F2F7FB'`
 
 - [ ] **Step 6: 增加 npm 脚本**
 
@@ -853,7 +853,7 @@ Expected: 180/192/512/512。
 
 - `index.html`：`apple-touch-icon` → `%BASE_URL%icons/apple-touch-icon-v2.png`
 - `vite.config.ts`：`includeAssets` 与 `manifest.icons` 全部改 `-v2`
-- `theme_color: '#007FB0'`、`background_color: '#EFF5FA'`
+- `theme_color: '#007FB0'`、`background_color: '#F2F7FB'`
 
 - [ ] **Step 5: 更新 README**
 

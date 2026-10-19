@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "npm run check:contrast && npm run audit:theme",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "audit:theme": "node scripts/audit-theme.mjs",
     "deploy": "bash scripts/deploy-pages.sh"
   },
   "dependencies": {

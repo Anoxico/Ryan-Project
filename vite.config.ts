@@ -16,8 +16,8 @@ export default defineConfig({
         name: '巡店记录',
         short_name: '巡店记录',
         description: '家电巡店记录工具',
-        theme_color: '#000000',
-        background_color: '#000000',
+        theme_color: '#007FB0',
+        background_color: '#F2F7FB',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
