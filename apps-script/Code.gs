@@ -740,7 +740,7 @@ function getAiConfig_() {
 
 function aiConfigStatus() {
   const cfg = getAiConfig_();
-  return { configured: !!cfg.apiKey, provider: cfg.provider, model: cfg.model };
+  return { configured: !!cfg.apiKey, provider: cfg.provider, model: cfg.model, baseUrl: cfg.baseUrl };
 }
 
 function setAiConfig(p) {

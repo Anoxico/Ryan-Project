@@ -120,4 +120,5 @@ export interface AiStatus {
   configured: boolean
   provider: AiProvider
   model: string
+  baseUrl: string
 }

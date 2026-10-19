@@ -26,6 +26,7 @@ export function AiSettingsCard() {
         setStatus(s)
         setProvider(s.provider)
         setModel(s.model)
+        setBaseUrl(s.baseUrl ?? '')
       })
       .catch(() => {})
       .finally(() => {
