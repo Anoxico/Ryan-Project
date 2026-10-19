@@ -75,8 +75,8 @@ export function StatsPage() {
       )}
 
       {!loading && error && (
-        <Card className="border-[var(--color-accent)]/30">
-          <p className="text-sm text-[var(--color-accent)]">{error}</p>
+        <Card className="border-[var(--color-danger)]/30">
+          <p className="text-sm text-[var(--color-danger)]">{error}</p>
           <Button variant="outline" className="mt-4 w-full" onClick={() => void load()}>
             重试
           </Button>
@@ -159,7 +159,7 @@ export function StatsPage() {
                 CSV
               </Button>
             </div>
-            {exportError && <p className="mt-3 text-sm text-[var(--color-accent)]">{exportError}</p>}
+            {exportError && <p className="mt-3 text-sm text-[var(--color-danger)]">{exportError}</p>}
           </Card>
         </div>
       )}
@@ -177,7 +177,7 @@ export function StatsPage() {
 function StatBox({ label, value }: { label: string; value: number }) {
   return (
     <Card className="py-4">
-      <p className="text-3xl font-extrabold tabular-nums tracking-tight">{value}</p>
+      <p className="text-3xl font-extrabold tabular-nums tracking-tight text-[var(--color-fg)]">{value}</p>
       <p className="mt-1 text-xs text-[var(--color-fg-dim)]">{label}</p>
     </Card>
   )

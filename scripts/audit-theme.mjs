@@ -12,6 +12,11 @@ const DARK_ALLOWED = new Set([
   'src/components/ui/dialog.tsx',
 ])
 
+const WHITE_ALLOWED_FILES = new Set([
+  // 图表色块上的白色百分比标签，色板全部满足白字 4.5:1
+  'src/components/stats/Charts.tsx',
+])
+
 const WHITE_ALLOWED_PATTERNS = [
   /brand-strong/,
   /brand-pressed/,
@@ -38,7 +43,8 @@ for (const file of files) {
       violations.push(`${at} bg-black 仅允许深色遮罩文件`)
     }
     if (/text-white/.test(line)) {
-      const ok = WHITE_ALLOWED_PATTERNS.some((re) => re.test(line))
+      const ok =
+        WHITE_ALLOWED_FILES.has(file) || WHITE_ALLOWED_PATTERNS.some((re) => re.test(line))
       if (!ok) violations.push(`${at} text-white 未在白名单场景`)
     }
   })

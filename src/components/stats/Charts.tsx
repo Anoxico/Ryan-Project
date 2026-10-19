@@ -18,9 +18,9 @@ export function BarList({ items, emptyText = '暂无数据' }: { items: BarItem[
             <span className="truncate pr-2 text-[var(--color-fg-dim)]">{item.label}</span>
             <span className="shrink-0 font-bold tabular-nums">{item.value}</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-surface-2)]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-white/70 to-white"
+              className="h-full rounded-full bg-gradient-to-r from-[var(--color-brand-100)] to-[var(--color-brand)]"
               style={{ width: `${Math.max((item.value / max) * 100, 4)}%` }}
             />
           </div>
@@ -36,7 +36,7 @@ export interface RatioSegment {
   ratio: number
 }
 
-const PALETTE = ['#30d158', '#ff9f0a', '#ff3b30', '#5e5ce6', '#64d2ff', '#bf5af2']
+const PALETTE = ['#007BA8', '#0E7490', '#0B7A54', '#92400E', '#7C3AED', '#B42318']
 
 export function RatioBar({
   title,
@@ -52,14 +52,20 @@ export function RatioBar({
         <span className="font-semibold">{title}</span>
         <span className="text-xs text-[var(--color-muted)]">{total} 个</span>
       </div>
-      <div className="flex h-3 w-full overflow-hidden rounded-full bg-white/[0.06]">
+      <div className="flex h-3 w-full overflow-hidden rounded-full bg-[var(--color-surface-2)]">
         {segments.map((seg, i) => (
           <div
             key={seg.label}
             style={{ width: `${seg.ratio * 100}%`, background: PALETTE[i % PALETTE.length] }}
-            className="h-full"
+            className="relative flex h-full items-center justify-center"
             title={`${seg.label} ${(seg.ratio * 100).toFixed(0)}%`}
-          />
+          >
+            {seg.ratio >= 0.04 && (
+              <span className="text-[0.6rem] font-semibold leading-none text-white tabular-nums">
+                {(seg.ratio * 100).toFixed(0)}%
+              </span>
+            )}
+          </div>
         ))}
       </div>
       <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1">
@@ -70,7 +76,7 @@ export function RatioBar({
               style={{ background: PALETTE[i % PALETTE.length] }}
             />
             {seg.label}
-            <span className={cn('font-semibold text-white tabular-nums')}>
+            <span className={cn('font-semibold text-[var(--color-fg)] tabular-nums')}>
               {(seg.ratio * 100).toFixed(0)}%
             </span>
           </span>
