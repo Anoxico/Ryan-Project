@@ -102,3 +102,22 @@ export const DICT_TYPE_LABELS: Record<DictType, string> = {
   form: '形态',
   energy_rating: '能效',
 }
+
+export type AiProvider = 'gemini' | 'openai'
+
+export interface RecognitionResult {
+  model: string | null
+  params: string[]
+  noise_db: number | null
+  sets_count: number | null
+  liter: number | null
+  air_volume: number | null
+  confidence: 'high' | 'medium' | 'low'
+  notes: string | null
+}
+
+export interface AiStatus {
+  configured: boolean
+  provider: AiProvider
+  model: string
+}
