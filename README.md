@@ -45,7 +45,7 @@ npm run build        # 类型检查 + 构建到 dist/
 npm run deploy       # 构建并发布到 GitHub Pages (gh-pages 分支)
 ```
 
-设计语言：纯黑背景 + 毛玻璃层次 + 超平滑大圆角；字体 Inter / SF Pro / 苹方 / 思源黑体。
+设计语言：白底 + 美的蓝（#0098D1 / 主按钮 #007BA8）+ 白色卡片与柔和阴影；字体 Inter / SF Pro / 苹方 / 思源黑体。
 后端地址与口令存于浏览器 localStorage，首次打开在配置页填写。
 
 ## 快速开始
@@ -69,7 +69,7 @@ npm run deploy       # 构建并发布到 GitHub Pages (gh-pages 分支)
 | `dictList` / `dictSave` / `dictDelete` | 字典维护 |
 | `stats` | 统计（渠道/客户/门店次数、类别数量、能效占比） |
 | `exportData` | 导出全部数据（前端生成 Excel/CSV） |
-| `recognizeLabel` | 铭牌拍照识别（Gemini / OpenAI 兼容），返回归一化字段 |
+| `recognizeLabel` | 铭牌拍照识别（DeepSeek deepseek-flash），返回归一化字段 |
 | `setAiConfig` / `aiConfigStatus` | 保存 / 查询 AI 识别配置（Key 不回传） |
 
 ## 数据表（Google 表格内）

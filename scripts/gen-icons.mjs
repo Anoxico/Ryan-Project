@@ -8,8 +8,8 @@ import { dirname, join } from 'node:path'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const OUT_DIR = join(__dirname, '..', 'public', 'icons')
 
-const BG = [10, 10, 12]
-const FG = [245, 245, 247]
+const BG = [0, 127, 176]
+const FG = [255, 255, 255]
 
 function crc32(buf) {
   let c = ~0
@@ -64,11 +64,13 @@ function inCircle(px, py, cx, cy, r) {
   return dx * dx + dy * dy <= r * r
 }
 
-function render(size, padRatio = 0, radiusRatio = 0.24) {
+function render(size, padRatio = 0, radiusRatio = 0.24, glyphRatio = 1) {
   const ss = 3
   const S = size * ss
   const buf = new Uint8Array(S * S * 4)
   const pad = S * padRatio
+  const c = S * 0.5
+  const g = glyphRatio
 
   for (let y = 0; y < S; y++) {
     for (let x = 0; x < S; x++) {
@@ -76,14 +78,14 @@ function render(size, padRatio = 0, radiusRatio = 0.24) {
       let color = null
       if (inRoundRect(x, y, pad, pad, S - pad, S - pad, (S - 2 * pad) * radiusRatio)) {
         color = BG
-        // 白色标签
-        const tagX0 = S * 0.26
-        const tagX1 = S * 0.74
-        const tagY0 = S * 0.33
-        const tagY1 = S * 0.67
-        if (inRoundRect(x, y, tagX0, tagY0, tagX1, tagY1, S * 0.05)) color = FG
+        // 白色标签（围绕中心按 glyphRatio 缩放）
+        const tagX0 = c + (-0.24 * g) * S
+        const tagX1 = c + (0.24 * g) * S
+        const tagY0 = c + (-0.17 * g) * S
+        const tagY1 = c + (0.17 * g) * S
+        if (inRoundRect(x, y, tagX0, tagY0, tagX1, tagY1, S * 0.05 * g)) color = FG
         // 标签上的圆孔
-        if (inCircle(x, y, S * 0.39, S * 0.5, S * 0.055)) color = BG
+        if (inCircle(x, y, c + (-0.11 * g) * S, c, S * 0.055 * g)) color = BG
       }
       if (color) {
         buf[i] = color[0]
@@ -120,14 +122,16 @@ function render(size, padRatio = 0, radiusRatio = 0.24) {
 }
 
 mkdirSync(OUT_DIR, { recursive: true })
+// [文件名, 尺寸, 内边距, 圆角比例, 图形缩放]
+// maskable 与 apple-touch 满版铺底，避免透明边被系统填黑
 const targets = [
-  ['icon-192.png', 192, 0, 0.24],
-  ['icon-512.png', 512, 0, 0.24],
-  ['maskable-512.png', 512, 0.14, 0.32],
-  ['apple-touch-icon.png', 180, 0, 0.24],
+  ['icon-192-v2.png', 192, 0, 0.24, 1],
+  ['icon-512-v2.png', 512, 0, 0.24, 1],
+  ['maskable-512-v2.png', 512, 0, 0, 0.8],
+  ['apple-touch-icon-v2.png', 180, 0, 0, 1],
 ]
-for (const [name, size, pad, radius] of targets) {
-  const png = encodePng(size, size, render(size, pad, radius))
+for (const [name, size, pad, radius, glyph] of targets) {
+  const png = encodePng(size, size, render(size, pad, radius, glyph))
   writeFileSync(join(OUT_DIR, name), png)
   console.log('wrote', name, `${size}x${size}`)
 }
