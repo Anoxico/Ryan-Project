@@ -44,14 +44,14 @@ export function HomePage() {
             <div className="flex items-center gap-2">
               <Link
                 to="/filter"
-                className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg-dim)]"
+                className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg-dim)] transition-colors hover:text-[var(--color-brand-text)]"
                 aria-label="筛选与搜索"
               >
                 <Search className="h-4 w-4" />
               </Link>
               <button
                 onClick={() => void load()}
-                className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg-dim)]"
+                className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg-dim)] transition-colors hover:text-[var(--color-brand-text)]"
                 aria-label="刷新"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -68,8 +68,8 @@ export function HomePage() {
       )}
 
       {!loading && error && (
-        <Card className="border-[var(--color-accent)]/30">
-          <p className="text-sm text-[var(--color-accent)]">{error}</p>
+        <Card className="border-[var(--color-danger)]/30">
+          <p className="text-sm text-[var(--color-danger)]">{error}</p>
           <p className="mt-1 text-xs text-[var(--color-muted)]">
             请到「设置」检查后端地址与口令。
           </p>
@@ -85,8 +85,8 @@ export function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           className="glow mt-8 flex flex-col items-center justify-center rounded-[var(--radius-2xl)] border border-dashed border-[var(--color-line)] px-6 py-16 text-center"
         >
-          <div className="glass flex h-16 w-16 items-center justify-center rounded-full">
-            <Store className="h-7 w-7 text-[var(--color-fg-dim)]" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-brand-50)]">
+            <Store className="h-7 w-7 text-[var(--color-brand)]" />
           </div>
           <h2 className="mt-5 text-lg font-bold">还没有门店记录</h2>
           <p className="mt-1 max-w-[16rem] text-sm text-[var(--color-fg-dim)]">
@@ -113,7 +113,7 @@ export function HomePage() {
         <div className="mx-auto flex max-w-md justify-end px-4">
           <Link
             to="/survey/new"
-            className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)] text-white shadow-[0_10px_40px_-8px_var(--color-accent)] transition-transform active:scale-95"
+            className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-brand)] to-[var(--color-brand-strong)] text-white shadow-float transition-transform active:scale-95"
             aria-label="新建巡店记录"
           >
             <Plus className="h-6 w-6" strokeWidth={2.5} />

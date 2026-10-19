@@ -3,7 +3,7 @@ import { TabBar } from './TabBar'
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-[100dvh] bg-black">
+    <div className="min-h-[100dvh]">
       <main className="mx-auto max-w-md px-4 pb-32 pt-4">{children}</main>
       <TabBar />
     </div>

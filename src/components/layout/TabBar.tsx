@@ -21,18 +21,23 @@ export function TabBar() {
               className={({ isActive }) =>
                 cn(
                   'flex flex-1 flex-col items-center gap-1 rounded-[1.1rem] py-2 text-[0.68rem] font-semibold transition-colors',
-                  isActive ? 'text-white' : 'text-[var(--color-muted)]',
+                  isActive
+                    ? 'bg-[var(--color-brand-50)] text-[var(--color-brand-text)]'
+                    : 'text-[var(--color-muted)]',
                 )
               }
             >
               {({ isActive }) => (
                 <>
-                  <Icon className={cn('h-[1.35rem] w-[1.35rem]', isActive && 'drop-shadow')} strokeWidth={isActive ? 2.4 : 2} />
+                  <Icon
+                    className={cn('h-[1.35rem] w-[1.35rem]', isActive && 'drop-shadow-sm')}
+                    strokeWidth={isActive ? 2.4 : 2}
+                  />
                   <span>{label}</span>
                   <span
                     className={cn(
                       'h-1 w-1 rounded-full transition-opacity',
-                      isActive ? 'bg-[var(--color-accent)] opacity-100' : 'opacity-0',
+                      isActive ? 'bg-[var(--color-brand)] opacity-100' : 'opacity-0',
                     )}
                   />
                 </>
