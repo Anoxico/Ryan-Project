@@ -89,15 +89,13 @@
 
 ## 可选：开启铭牌识别
 
-1. 准备一个支持图片识别的 API Key（如 Google Gemini）。
-   - Gemini：到 https://aistudio.google.com/apikey 创建 Key
+1. 到 https://platform.deepseek.com/api_keys 创建一个 DeepSeek API Key。
 2. 部署好前端后，手机打开 App → 底部「设置」→ 找到「AI 识别」
-3. 提供方选 `Gemini`，粘贴 Key，模型名保持 `gemini-2.5-flash`（可按需更换）
-4. 点「保存 AI 配置」，状态显示「已配置」即完成
-5. 在新增产品页点「拍照识别铭牌」拍照，识别结果会自动预填，请核对后再保存
+3. 粘贴 Key，点「保存 AI 配置」，状态显示「已配置」即完成
+4. 在新增产品页点「拍照识别铭牌」拍照，识别结果会自动预填，请核对后再保存
 
 > Key 存在你 Google 账号的 Apps Script 属性里，不会显示在浏览器。
-> 若用其他厂商（OpenAI 兼容），提供方选 `OpenAI 兼容`，填对应 Base URL 与模型名。
+> 模型固定为 `deepseek-flash`（支持图片输入），Base URL 已内置为 `https://api.deepseek.com`，无需填写。
 
 > 注意：铭牌识别与 AI 配置接口在最新 `Code.gs` 中，请先按第 4 步把后端**重新部署新版本**，否则设置页读不到配置状态。
 
