@@ -52,12 +52,12 @@ export function Lightbox({ open, photos, index, onIndexChange, onClose }: Lightb
       onTouchEnd={handleTouchEnd}
     >
       <div className="safe-top flex items-center justify-between px-4 py-3">
-        <span className="text-sm tabular-nums text-[var(--color-fg-dim)]">
+        <span className="text-sm tabular-nums text-[var(--color-on-dark-dim)]">
           {index + 1} / {photos.length}
         </span>
         <button
           onClick={onClose}
-          className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+          className="glass-dark flex h-10 w-10 items-center justify-center rounded-full text-white"
           aria-label="关闭"
         >
           <X className="h-5 w-5" />
@@ -77,7 +77,7 @@ export function Lightbox({ open, photos, index, onIndexChange, onClose }: Lightb
             <button
               onClick={() => onIndexChange(Math.max(0, index - 1))}
               disabled={index === 0}
-              className="glass absolute left-2 flex h-11 w-11 items-center justify-center rounded-full text-white disabled:opacity-30"
+              className="glass-dark absolute left-2 flex h-11 w-11 items-center justify-center rounded-full text-white disabled:opacity-30"
               aria-label="上一张"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -85,7 +85,7 @@ export function Lightbox({ open, photos, index, onIndexChange, onClose }: Lightb
             <button
               onClick={() => onIndexChange(Math.min(photos.length - 1, index + 1))}
               disabled={index === photos.length - 1}
-              className="glass absolute right-2 flex h-11 w-11 items-center justify-center rounded-full text-white disabled:opacity-30"
+              className="glass-dark absolute right-2 flex h-11 w-11 items-center justify-center rounded-full text-white disabled:opacity-30"
               aria-label="下一张"
             >
               <ChevronRight className="h-5 w-5" />

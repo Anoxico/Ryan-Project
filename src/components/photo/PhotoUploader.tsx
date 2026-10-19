@@ -52,7 +52,7 @@ export function PhotoUploader({
               <button
                 type="button"
                 onClick={() => onRetry(photo.key)}
-                className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[var(--color-accent)]/25 text-[0.65rem] font-semibold text-white"
+                className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[var(--color-danger)]/85 text-[0.65rem] font-semibold text-white"
               >
                 <RotateCw className="h-4 w-4" />
                 重试
@@ -76,7 +76,7 @@ export function PhotoUploader({
           onClick={() => inputRef.current?.click()}
           disabled={disabled}
           className={cn(
-            'flex aspect-square flex-col items-center justify-center gap-1 rounded-[0.9rem] border border-dashed border-[var(--color-line-strong)] text-[var(--color-muted)] transition-colors active:bg-white/5 disabled:opacity-40',
+            'flex aspect-square flex-col items-center justify-center gap-1 rounded-[0.9rem] border border-dashed border-[var(--color-brand-100)] bg-[var(--color-brand-50)]/50 text-[var(--color-brand-text)] transition-colors hover:border-[var(--color-brand)] active:bg-[var(--color-brand-100)] disabled:opacity-40',
           )}
         >
           <ImagePlus className="h-5 w-5" />
