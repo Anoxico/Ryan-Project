@@ -5,9 +5,11 @@ import { Spinner } from '@/components/ui/spinner'
 import { Field } from '@/components/form/Field'
 import { AutocompleteInput } from '@/components/form/AutocompleteInput'
 import { PhotoUploader } from '@/components/photo/PhotoUploader'
+import { LabelRecognizer } from '@/components/product/LabelRecognizer'
 import { useDict } from '@/lib/dict'
 import { cn } from '@/lib/utils'
 import { createPhotoItem, type PhotoItem } from '@/lib/photos'
+import type { RecognitionFormPatch } from '@/lib/recognition'
 import { CATEGORY_LABELS, type ProductCategory, type ProductRecord } from '@/lib/types'
 import type { ProductInput } from '@/lib/products'
 
@@ -75,6 +77,14 @@ export function ProductForm({
   const energies = useDict('energy_rating')
 
   const flags = FIELD_FLAGS[category]
+
+  function applyRecognition(patch: RecognitionFormPatch) {
+    if (patch.productParams !== undefined) setProductParams(patch.productParams)
+    if (patch.noise !== undefined) setNoise(patch.noise)
+    if (patch.sets !== undefined) setSets(patch.sets)
+    if (patch.liter !== undefined) setLiter(patch.liter)
+    if (patch.air !== undefined) setAir(patch.air)
+  }
 
   function handleCategoryChange(next: ProductCategory) {
     if (next === category) return
@@ -266,6 +276,15 @@ export function ProductForm({
       <Field label="备注">
         <Textarea value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="选填" />
       </Field>
+
+      {/* 拍照识别 */}
+      <LabelRecognizer
+        category={category}
+        disabled={submitting}
+        photos={photos}
+        onPhotosChange={onPhotosChange}
+        onRecognized={applyRecognition}
+      />
 
       {/* 照片 */}
       <Field label="产品照片" hint="该产品特写，选填，可拍照或从相册选择多张">
