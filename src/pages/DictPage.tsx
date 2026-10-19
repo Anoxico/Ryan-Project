@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Check, Plus, Trash2, Pencil, X } from 'lucide-react'
+import { useBack } from '@/lib/use-back'
+import { ArrowLeft, Check, Plus, Trash2, Pencil, X, Radio, Users, Store, Package, Shapes, Gauge } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -21,8 +22,18 @@ const TYPES: DictType[] = ['channel', 'customer', 'store', 'product_name', 'form
 const CATEGORY_SCOPED: DictType[] = ['product_name', 'form']
 const CATEGORIES: ProductCategory[] = ['dishwasher', 'water_heater', 'range_hood']
 
+const DICT_ICONS: Record<DictType, React.ReactNode> = {
+  channel: <Radio className="h-4 w-4" />,
+  customer: <Users className="h-4 w-4" />,
+  store: <Store className="h-4 w-4" />,
+  product_name: <Package className="h-4 w-4" />,
+  form: <Shapes className="h-4 w-4" />,
+  energy_rating: <Gauge className="h-4 w-4" />,
+}
+
 export function DictPage() {
   const navigate = useNavigate()
+  const goBack = useBack('/settings')
   const [type, setType] = React.useState<DictType>('channel')
   const [category, setCategory] = React.useState<ProductCategory>('dishwasher')
   const [items, setItems] = React.useState<DictOption[]>([])
@@ -104,9 +115,9 @@ export function DictPage() {
 
   return (
     <div className="mx-auto min-h-[100dvh] max-w-md px-4 pb-10">
-      <header className="flex items-center gap-3 pt-4 pb-6">
+      <header className="flex items-center gap-3 pt-safe pb-6">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => goBack()}
           className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg)]"
           aria-label="返回"
         >
@@ -128,12 +139,13 @@ export function DictPage() {
               setEditingId(null)
             }}
             className={cn(
-              'shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors',
+              'flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-colors',
               type === t
                 ? 'bg-[var(--color-brand-strong)] text-white'
                 : 'glass text-[var(--color-fg-dim)]',
             )}
           >
+            {DICT_ICONS[t]}
             {DICT_TYPE_LABELS[t]}
           </button>
         ))}

@@ -45,36 +45,20 @@ export function SettingsPage() {
 
       <AiSettingsCard />
 
-      <Card className="mt-4">
-        <button
+      <Card className="mt-4 p-0">
+        <TileRow
+          icon={<Trash className="h-5 w-5" />}
+          title="回收站"
+          subtitle="7 天内可恢复"
           onClick={() => navigate('/recycle')}
-          className="flex w-full items-center justify-between"
-        >
-          <span className="flex items-center gap-2 text-sm font-semibold text-[var(--color-fg)]">
-            <Trash className="h-4 w-4" />
-            回收站
-          </span>
-          <span className="flex items-center gap-1 text-sm text-[var(--color-fg-dim)]">
-            7 天内可恢复
-            <ChevronRight className="h-4 w-4" />
-          </span>
-        </button>
-      </Card>
-
-      <Card className="mt-4">
-        <button
+        />
+        <div className="mx-4 h-px bg-[var(--color-line)]" />
+        <TileRow
+          icon={<BookText className="h-5 w-5" />}
+          title="字典管理"
+          subtitle="渠道 / 客户 / 门店 / 形态 / 能效"
           onClick={() => navigate('/dict')}
-          className="flex w-full items-center justify-between"
-        >
-          <span className="flex items-center gap-2 text-sm font-semibold text-[var(--color-fg)]">
-            <BookText className="h-4 w-4" />
-            字典管理
-          </span>
-          <span className="flex items-center gap-1 text-sm text-[var(--color-fg-dim)]">
-            渠道 / 客户 / 门店 / 形态 / 能效
-            <ChevronRight className="h-4 w-4" />
-          </span>
-        </button>
+        />
       </Card>
 
       <Card className="mt-4">
@@ -92,6 +76,35 @@ export function SettingsPage() {
   )
 }
 
+function TileRow({
+  icon,
+  title,
+  subtitle,
+  onClick,
+}: {
+  icon: React.ReactNode
+  title: string
+  subtitle: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors active:bg-[var(--color-surface-2)]"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.8rem] bg-[var(--color-brand-50)] text-[var(--color-brand-strong)]">
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-[var(--color-fg)]">{title}</span>
+        <span className="mt-0.5 block truncate text-xs text-[var(--color-fg-dim)]">{subtitle}</span>
+      </span>
+      <ChevronRight className="h-4 w-4 shrink-0 text-[var(--color-muted)]" />
+    </button>
+  )
+}
+
 function Row({
   icon,
   label,
@@ -104,7 +117,7 @@ function Row({
   return (
     <div className="flex items-center justify-between gap-4">
       <span className="flex items-center gap-2 text-sm font-semibold text-[var(--color-fg)]">
-        <span className="text-[var(--color-brand)]">{icon}</span>
+        <span className="text-[var(--color-brand-strong)]">{icon}</span>
         {label}
       </span>
       <div className="min-w-0 text-right">{children}</div>

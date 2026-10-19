@@ -113,7 +113,7 @@ export function HomePage() {
         <div className="mx-auto flex max-w-md justify-end px-4">
           <Link
             to="/survey/new"
-            className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-brand)] to-[var(--color-brand-strong)] text-white shadow-float transition-transform active:scale-95"
+            className="bg-brand-vivid pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full text-white shadow-float transition-transform active:scale-95"
             aria-label="新建巡店记录"
           >
             <Plus className="h-6 w-6" strokeWidth={2.5} />
