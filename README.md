@@ -9,6 +9,7 @@
 - 两级数据模型：**巡店单 → 产品记录**
 - 产品类别：洗碗机 / 热水器 / 抽油烟机，各类别拥有专属字段
 - 支持多图拍照上传、分类别动态表单、筛选统计、Excel/CSV 导出
+- 铭牌拍照识别：拍参数标签自动预填硬参数，人工核对后保存
 
 ## 架构
 
@@ -68,6 +69,8 @@ npm run deploy       # 构建并发布到 GitHub Pages (gh-pages 分支)
 | `dictList` / `dictSave` / `dictDelete` | 字典维护 |
 | `stats` | 统计（渠道/客户/门店次数、类别数量、能效占比） |
 | `exportData` | 导出全部数据（前端生成 Excel/CSV） |
+| `recognizeLabel` | 铭牌拍照识别（Gemini / OpenAI 兼容），返回归一化字段 |
+| `setAiConfig` / `aiConfigStatus` | 保存 / 查询 AI 识别配置（Key 不回传） |
 
 ## 数据表（Google 表格内）
 
