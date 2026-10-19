@@ -4,21 +4,21 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold transition-all duration-200 select-none active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold transition-all duration-200 select-none active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-surface)]',
   {
     variants: {
       variant: {
         default:
-          'bg-white text-black hover:bg-white/90 shadow-[0_1px_0_0_rgba(255,255,255,0.2)_inset]',
+          'bg-[var(--color-brand-strong)] text-white hover:bg-[var(--color-brand-pressed)] shadow-float',
         accent:
-          'bg-[var(--color-accent)] text-white hover:brightness-110 shadow-[0_8px_30px_-12px_var(--color-accent)]',
-        glass:
-          'glass text-white hover:bg-white/[0.06]',
+          'bg-gradient-to-br from-[var(--color-brand)] to-[var(--color-brand-strong)] text-white hover:brightness-105 shadow-float',
+        glass: 'glass text-[var(--color-fg)] hover:bg-[var(--color-brand-50)]',
         outline:
-          'border border-[var(--color-line-strong)] text-white hover:bg-white/[0.05]',
-        ghost: 'text-[var(--color-fg-dim)] hover:text-white hover:bg-white/[0.05]',
+          'border border-[var(--color-control)] bg-[var(--color-surface)] text-[var(--color-fg)] hover:border-[var(--color-brand-strong)] hover:text-[var(--color-brand-text)]',
+        ghost:
+          'text-[var(--color-fg-dim)] hover:text-[var(--color-fg)] hover:bg-[var(--color-surface-2)]',
         destructive:
-          'bg-[var(--color-accent)]/15 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/25',
+          'bg-[var(--color-danger)] text-white hover:brightness-110 shadow-[0_8px_24px_-12px_rgba(180,35,24,0.5)]',
       },
       size: {
         sm: 'h-9 px-3.5 text-sm rounded-[0.9rem]',

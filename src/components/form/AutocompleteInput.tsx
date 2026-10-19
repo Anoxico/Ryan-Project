@@ -94,7 +94,7 @@ export function AutocompleteInput({
         onFocus={() => setOpen(true)}
         onKeyDown={handleKeyDown}
         aria-invalid={invalid || undefined}
-        className={cn(invalid && 'border-[var(--color-accent)]/50')}
+        className={cn(invalid && 'border-[var(--color-danger)]')}
       />
 
       {open && (filtered.length > 0 || showCreateHint) && (
@@ -108,7 +108,9 @@ export function AutocompleteInput({
                   onClick={() => choose(option.name)}
                   className={cn(
                     'flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors',
-                    index === activeIndex ? 'bg-white/10 text-white' : 'text-[var(--color-fg)] hover:bg-white/5',
+                    index === activeIndex
+                      ? 'bg-[var(--color-brand-50)] text-[var(--color-brand-text)]'
+                      : 'text-[var(--color-fg)] hover:bg-[var(--color-surface-2)]',
                   )}
                 >
                   <span className="truncate">{option.name}</span>
@@ -125,8 +127,8 @@ export function AutocompleteInput({
                   className={cn(
                     'flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors',
                     activeIndex === filtered.length
-                      ? 'bg-white/10 text-white'
-                      : 'text-[var(--color-fg-dim)] hover:bg-white/5',
+                      ? 'bg-[var(--color-brand-50)] text-[var(--color-brand-text)]'
+                      : 'text-[var(--color-brand-text)] hover:bg-[var(--color-brand-50)]',
                   )}
                 >
                   <Plus className="h-4 w-4" />

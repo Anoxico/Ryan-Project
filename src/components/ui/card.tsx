@@ -5,7 +5,7 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   return (
     <div
       className={cn(
-        'glass squircle rounded-[var(--radius-xl)] p-5 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.9)]',
+        'glass squircle rounded-[var(--radius-xl)] p-5',
         className,
       )}
       {...props}
