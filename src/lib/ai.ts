@@ -1,6 +1,6 @@
 import { api } from './api'
 import { compressImage, toBase64 } from './photos'
-import type { AiProvider, AiStatus, ProductCategory, RecognitionResult } from './types'
+import type { AiStatus, ProductCategory, RecognitionResult } from './types'
 
 export async function recognizeLabel({
   file,
@@ -23,10 +23,7 @@ export function getAiStatus() {
 }
 
 export interface AiConfigInput {
-  provider: AiProvider
   apiKey: string
-  model: string
-  baseUrl: string
   clearApiKey?: boolean
 }
 

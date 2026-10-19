@@ -6,6 +6,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { getSurvey } from '@/lib/surveys'
 import { saveProduct, type ProductInput } from '@/lib/products'
 import { uploadPhoto, deletePhoto, toPhotoItems, type PhotoItem } from '@/lib/photos'
+import { clearDraft, productDraftKey } from '@/lib/draft'
 import type { ProductRecord } from '@/lib/types'
 
 export function ProductEditPage() {
@@ -83,6 +84,7 @@ export function ProductEditPage() {
         return
       }
 
+      clearDraft(productDraftKey(surveyId))
       navigate(`/survey/${surveyId}`, { replace: true })
     } catch (e) {
       setError((e as Error).message)

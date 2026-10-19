@@ -1,4 +1,4 @@
-import { Link2, KeyRound, LogOut, ChevronRight, Info, Trash } from 'lucide-react'
+import { Link2, KeyRound, LogOut, ChevronRight, Info, Trash, BookText } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/card'
@@ -56,6 +56,22 @@ export function SettingsPage() {
           </span>
           <span className="flex items-center gap-1 text-sm text-[var(--color-fg-dim)]">
             7 天内可恢复
+            <ChevronRight className="h-4 w-4" />
+          </span>
+        </button>
+      </Card>
+
+      <Card className="mt-4">
+        <button
+          onClick={() => navigate('/dict')}
+          className="flex w-full items-center justify-between"
+        >
+          <span className="flex items-center gap-2 text-sm font-semibold text-white">
+            <BookText className="h-4 w-4" />
+            字典管理
+          </span>
+          <span className="flex items-center gap-1 text-sm text-[var(--color-fg-dim)]">
+            渠道 / 客户 / 门店 / 形态 / 能效
             <ChevronRight className="h-4 w-4" />
           </span>
         </button>

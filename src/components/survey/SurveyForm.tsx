@@ -6,6 +6,7 @@ import { Field } from '@/components/form/Field'
 import { AutocompleteInput } from '@/components/form/AutocompleteInput'
 import { useDict } from '@/lib/dict'
 import { cn } from '@/lib/utils'
+import { loadDraft, saveDraft, surveyDraftKey, type SurveyDraft } from '@/lib/draft'
 import type { Survey } from '@/lib/types'
 import type { SurveyInput } from '@/lib/surveys'
 
@@ -26,15 +27,26 @@ interface SurveyFormProps {
 type Errors = Partial<Record<'visit_date' | 'channel' | 'customer' | 'store', string>>
 
 export function SurveyForm({ initial, submitting, error, onSubmit }: SurveyFormProps) {
-  const [visitDate, setVisitDate] = React.useState(initial?.visit_date || today())
-  const [channel, setChannel] = React.useState(initial?.channel || '')
-  const [customer, setCustomer] = React.useState(initial?.customer || '')
-  const [store, setStore] = React.useState(initial?.store || '')
-  const [remark, setRemark] = React.useState(initial?.remark || '')
+  const draftKey = surveyDraftKey(initial?.id)
+  const [draft] = React.useState<SurveyDraft | null>(() =>
+    initial?.id ? null : loadDraft<SurveyDraft>(draftKey),
+  )
+  const restoredFromDraft = !!draft
+
+  const [visitDate, setVisitDate] = React.useState(initial?.visit_date || draft?.visitDate || today())
+  const [channel, setChannel] = React.useState(initial?.channel || draft?.channel || '')
+  const [customer, setCustomer] = React.useState(initial?.customer || draft?.customer || '')
+  const [store, setStore] = React.useState(initial?.store || draft?.store || '')
+  const [remark, setRemark] = React.useState(initial?.remark || draft?.remark || '')
   const [status, setStatus] = React.useState<'draft' | 'submitted'>(
-    initial?.status === 'draft' ? 'draft' : 'submitted',
+    (initial?.status as 'draft' | 'submitted') || draft?.status || 'submitted',
   )
   const [errors, setErrors] = React.useState<Errors>({})
+
+  React.useEffect(() => {
+    if (initial?.id) return
+    saveDraft(draftKey, { visitDate, channel, customer, store, remark, status } satisfies SurveyDraft)
+  }, [draftKey, initial?.id, visitDate, channel, customer, store, remark, status])
 
   const channels = useDict('channel')
   const customers = useDict('customer')
@@ -66,6 +78,11 @@ export function SurveyForm({ initial, submitting, error, onSubmit }: SurveyFormP
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {restoredFromDraft && (
+        <p className="rounded-[1rem] bg-white/[0.05] px-4 py-2.5 text-xs text-[var(--color-fg-dim)]">
+          已恢复上次未保存的草稿
+        </p>
+      )}
       <Field label="巡店日期" required error={errors.visit_date} htmlFor="visit_date">
         <Input
           id="visit_date"

@@ -26,8 +26,8 @@ const CATEGORY_FIELDS = {
 };
 const SPECIAL_FIELDS = ['form', 'energy_rating', 'noise_db', 'sets_count', 'extra_points', 'liter', 'air_volume'];
 
-const AI_DEFAULT_PROVIDER = 'gemini';
-const AI_DEFAULT_MODEL = 'gemini-2.5-flash';
+const AI_BASE_URL = 'https://api.deepseek.com';
+const AI_MODEL = 'deepseek-flash';
 
 /* ============================================================
  *  入口
@@ -731,25 +731,17 @@ function aiProps_() { return PropertiesService.getScriptProperties(); }
 function getAiConfig_() {
   const props = aiProps_();
   return {
-    provider: props.getProperty('AI_PROVIDER') || AI_DEFAULT_PROVIDER,
-    apiKey: props.getProperty('AI_API_KEY') || '',
-    model: props.getProperty('AI_MODEL') || AI_DEFAULT_MODEL,
-    baseUrl: props.getProperty('AI_BASE_URL') || ''
+    apiKey: props.getProperty('AI_API_KEY') || ''
   };
 }
 
 function aiConfigStatus() {
   const cfg = getAiConfig_();
-  const ready = !!cfg.apiKey && (cfg.provider !== 'openai' || !!cfg.baseUrl);
-  return { configured: ready, provider: cfg.provider, model: cfg.model, baseUrl: cfg.baseUrl };
+  return { configured: !!cfg.apiKey, model: AI_MODEL };
 }
 
 function setAiConfig(p) {
-  if (p.provider && ['gemini', 'openai'].indexOf(p.provider) < 0) throw new Error('提供方无效');
   const props = aiProps_();
-  if (p.provider) props.setProperty('AI_PROVIDER', p.provider);
-  if (p.model) props.setProperty('AI_MODEL', p.model);
-  if (p.baseUrl !== undefined) props.setProperty('AI_BASE_URL', p.baseUrl || '');
   if (p.clearApiKey) props.deleteProperty('AI_API_KEY');
   // 仅当提供了非空 Key 时才覆盖，留空表示不修改已保存的 Key
   if (p.apiKey) props.setProperty('AI_API_KEY', p.apiKey);
@@ -759,11 +751,9 @@ function setAiConfig(p) {
 function recognizeLabel(p) {
   if (!p || !p.dataBase64) throw new Error('缺少图片数据');
   const cfg = getAiConfig_();
-  if (!cfg.apiKey) throw new Error('尚未配置识别服务，请到设置页填写 API Key');
+  if (!cfg.apiKey) throw new Error('尚未配置识别服务，请到设置页填写 DeepSeek API Key');
   const prompt = aiBuildPrompt_(p.category || '');
-  const text = cfg.provider === 'openai'
-    ? aiCallOpenAI_(cfg, p, prompt)
-    : aiCallGemini_(cfg, p, prompt);
+  const text = aiCallDeepSeek_(cfg, p, prompt);
   return aiNormalize_(aiParseJson_(text));
 }
 
@@ -788,60 +778,8 @@ function aiBuildPrompt_(category) {
   ].join('\n');
 }
 
-function aiSchema_() {
-  return {
-    type: 'OBJECT',
-    properties: {
-      model: { type: 'STRING', nullable: true },
-      params: { type: 'ARRAY', items: { type: 'STRING' } },
-      noise_db: { type: 'NUMBER', nullable: true },
-      sets_count: { type: 'NUMBER', nullable: true },
-      liter: { type: 'NUMBER', nullable: true },
-      air_volume: { type: 'NUMBER', nullable: true },
-      confidence: { type: 'STRING', enum: ['high', 'medium', 'low'] },
-      notes: { type: 'STRING', nullable: true }
-    },
-    required: ['model', 'params', 'confidence']
-  };
-}
-
-function aiCallGemini_(cfg, p, prompt) {
-  const url = 'https://generativelanguage.googleapis.com/v1beta/models/'
-    + encodeURIComponent(cfg.model) + ':generateContent';
-  const body = {
-    contents: [{
-      parts: [
-        { inline_data: { mime_type: p.mimeType || 'image/jpeg', data: p.dataBase64 } },
-        { text: prompt }
-      ]
-    }],
-    generationConfig: {
-      responseMimeType: 'application/json',
-      responseSchema: aiSchema_(),
-      temperature: 0
-    }
-  };
-  const res = UrlFetchApp.fetch(url, {
-    method: 'post',
-    contentType: 'application/json',
-    headers: { 'x-goog-api-key': cfg.apiKey },
-    payload: JSON.stringify(body),
-    muteHttpExceptions: true
-  });
-  const status = res.getResponseCode();
-  const text = res.getContentText();
-  if (status < 200 || status >= 300) throw new Error('识别服务错误(' + status + ')：' + text);
-  const json = JSON.parse(text);
-  const cand = json.candidates && json.candidates[0];
-  const parts = cand && cand.content && cand.content.parts;
-  if (!parts || !parts.length || !parts[0].text) throw new Error('识别服务未返回内容');
-  return parts[0].text;
-}
-
-function aiCallOpenAI_(cfg, p, prompt) {
-  if (!cfg.baseUrl) throw new Error('请先在设置页填写 Base URL');
-  if (!/^https?:\/\//i.test(cfg.baseUrl)) throw new Error('Base URL 需以 http(s):// 开头');
-  const url = cfg.baseUrl.replace(/\/+$/, '') + '/chat/completions';
+function aiCallDeepSeek_(cfg, p, prompt) {
+  const url = AI_BASE_URL + '/chat/completions';
   const messages = [{
     role: 'user',
     content: [
@@ -850,7 +788,7 @@ function aiCallOpenAI_(cfg, p, prompt) {
     ]
   }];
   function call(withFormat) {
-    const body = { model: cfg.model, messages: messages, temperature: 0 };
+    const body = { model: AI_MODEL, messages: messages, temperature: 0 };
     if (withFormat) body.response_format = { type: 'json_object' };
     const res = UrlFetchApp.fetch(url, {
       method: 'post',

@@ -91,5 +91,10 @@ npm run deploy       # 构建并发布到 GitHub Pages (gh-pages 分支)
 | 4.5 | 首页按门店聚合 + 门店详情页（门店→日期→产品） | 已完成 |
 | 4.6 | 批量删除 + 回收站（7 天可恢复） | 已完成 |
 | 5 | 筛选搜索 / 统计 / 导出（Excel/CSV） | 已完成 |
-| 6 | 字典管理 / 交互打磨 / PWA | 待开始 |
+| 6 | 字典管理 / 草稿保存 / PWA | 已完成 |
+
+## 安装到手机主屏幕（PWA）
+
+- **iPhone (Safari)**：打开 `https://anoxico.github.io/Ryan-Project/` → 分享 → 添加到主屏幕
+- **Android (Chrome)**：打开后 → 菜单 → 安装应用 / 添加到主屏幕
 | 6 | 字典设置 / 交互打磨 / PWA | 待开始 |

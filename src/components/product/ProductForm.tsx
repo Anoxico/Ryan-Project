@@ -8,6 +8,7 @@ import { PhotoUploader } from '@/components/photo/PhotoUploader'
 import { LabelRecognizer } from '@/components/product/LabelRecognizer'
 import { useDict } from '@/lib/dict'
 import { cn } from '@/lib/utils'
+import { loadDraft, saveDraft, productDraftKey, type ProductDraft } from '@/lib/draft'
 import { createPhotoItem, type PhotoItem } from '@/lib/photos'
 import type { RecognitionFormPatch } from '@/lib/recognition'
 import { CATEGORY_LABELS, type ProductCategory, type ProductRecord } from '@/lib/types'
@@ -58,19 +59,45 @@ export function ProductForm({
   error,
   onSubmit,
 }: ProductFormProps) {
-  const [category, setCategory] = React.useState<ProductCategory>(initial?.category ?? 'dishwasher')
-  const [productName, setProductName] = React.useState(initial?.product_name ?? '')
-  const [productParams, setProductParams] = React.useState(initial?.product_params ?? '')
-  const [price, setPrice] = React.useState(str(initial?.sample_price))
-  const [form, setForm] = React.useState(initial?.form ?? '')
-  const [energy, setEnergy] = React.useState(initial?.energy_rating ?? '')
-  const [noise, setNoise] = React.useState(str(initial?.noise_db))
-  const [sets, setSets] = React.useState(str(initial?.sets_count))
-  const [extra, setExtra] = React.useState(initial?.extra_points ?? '')
-  const [liter, setLiter] = React.useState(str(initial?.liter))
-  const [air, setAir] = React.useState(str(initial?.air_volume))
-  const [remark, setRemark] = React.useState(initial?.remark ?? '')
+  const draftKey = productDraftKey(surveyId, initial?.id)
+  const [draft] = React.useState<ProductDraft | null>(() =>
+    initial?.id ? null : loadDraft<ProductDraft>(draftKey),
+  )
+  const restoredFromDraft = !!draft
+
+  const [category, setCategory] = React.useState<ProductCategory>(
+    initial?.category ?? (draft?.category as ProductCategory) ?? 'dishwasher',
+  )
+  const [productName, setProductName] = React.useState(initial?.product_name ?? draft?.productName ?? '')
+  const [productParams, setProductParams] = React.useState(initial?.product_params ?? draft?.productParams ?? '')
+  const [price, setPrice] = React.useState(str(initial?.sample_price) || draft?.price || '')
+  const [form, setForm] = React.useState(initial?.form ?? draft?.form ?? '')
+  const [energy, setEnergy] = React.useState(initial?.energy_rating ?? draft?.energy ?? '')
+  const [noise, setNoise] = React.useState(str(initial?.noise_db) || draft?.noise || '')
+  const [sets, setSets] = React.useState(str(initial?.sets_count) || draft?.sets || '')
+  const [extra, setExtra] = React.useState(initial?.extra_points ?? draft?.extra ?? '')
+  const [liter, setLiter] = React.useState(str(initial?.liter) || draft?.liter || '')
+  const [air, setAir] = React.useState(str(initial?.air_volume) || draft?.air || '')
+  const [remark, setRemark] = React.useState(initial?.remark ?? draft?.remark ?? '')
   const [errors, setErrors] = React.useState<Errors>({})
+
+  React.useEffect(() => {
+    if (initial?.id) return
+    saveDraft(draftKey, {
+      category,
+      productName,
+      productParams,
+      price,
+      form,
+      energy,
+      noise,
+      sets,
+      extra,
+      liter,
+      air,
+      remark,
+    } satisfies ProductDraft)
+  }, [draftKey, initial?.id, category, productName, productParams, price, form, energy, noise, sets, extra, liter, air, remark])
 
   const productNames = useDict('product_name', category)
   const forms = useDict('form', category)
@@ -145,6 +172,11 @@ export function ProductForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {restoredFromDraft && (
+        <p className="rounded-[1rem] bg-white/[0.05] px-4 py-2.5 text-xs text-[var(--color-fg-dim)]">
+          已恢复上次未保存的草稿
+        </p>
+      )}
       {/* 产品类别 */}
       <Field label="产品类别" required>
         <div className="glass flex rounded-[1.05rem] p-1">

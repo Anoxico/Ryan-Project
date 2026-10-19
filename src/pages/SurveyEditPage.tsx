@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { SurveyForm } from '@/components/survey/SurveyForm'
 import { Spinner } from '@/components/ui/spinner'
 import { getSurvey, saveSurvey, type SurveyInput } from '@/lib/surveys'
+import { clearDraft, surveyDraftKey } from '@/lib/draft'
 import type { Survey } from '@/lib/types'
 
 interface Prefill {
@@ -50,6 +51,7 @@ export function SurveyEditPage() {
     setError(null)
     try {
       const { id: savedId } = await saveSurvey(values)
+      clearDraft(surveyDraftKey())
       navigate(`/survey/${savedId}`, { replace: true })
     } catch (e) {
       setError((e as Error).message)

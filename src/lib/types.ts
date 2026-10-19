@@ -103,8 +103,6 @@ export const DICT_TYPE_LABELS: Record<DictType, string> = {
   energy_rating: '能效',
 }
 
-export type AiProvider = 'gemini' | 'openai'
-
 export interface RecognitionResult {
   model: string | null
   params: string[]
@@ -118,7 +116,5 @@ export interface RecognitionResult {
 
 export interface AiStatus {
   configured: boolean
-  provider: AiProvider
   model: string
-  baseUrl: string
 }
