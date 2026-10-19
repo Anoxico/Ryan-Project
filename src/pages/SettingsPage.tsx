@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { AiSettingsCard } from '@/components/settings/AiSettingsCard'
 import { useAppConfig } from '@/lib/app-config'
 
 export function SettingsPage() {
@@ -41,6 +42,8 @@ export function SettingsPage() {
           <LogOut className="h-4 w-4" /> 清除本机配置
         </Button>
       </Card>
+
+      <AiSettingsCard />
 
       <Card className="mt-4">
         <button
