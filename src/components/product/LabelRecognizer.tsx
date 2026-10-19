@@ -114,7 +114,7 @@ export function LabelRecognizer({
     <div className="space-y-3">
       <Button
         type="button"
-        variant="glass"
+        variant="outline"
         className="w-full"
         disabled={disabled || status === 'loading'}
         onClick={() => inputRef.current?.click()}
@@ -133,7 +133,7 @@ export function LabelRecognizer({
         onChange={handleFile}
       />
 
-      {error && <p className="text-sm text-[var(--color-accent)]">{error}</p>}
+      {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
 
       {status === 'error' && fileRef.current && (
         <Button
@@ -150,8 +150,8 @@ export function LabelRecognizer({
       )}
 
       {status === 'done' && result && (
-        <div className="glass space-y-2 rounded-[1.05rem] p-4 text-sm">
-          <p className="font-semibold text-white">
+        <div className="space-y-2 rounded-[1.05rem] border border-[var(--color-brand-100)] bg-[var(--color-brand-50)] p-4 text-sm">
+          <p className="font-semibold text-[var(--color-brand-text)]">
             已识别，请核对（置信度：{CONFIDENCE_LABELS[result.confidence]}）
           </p>
           {result.notes && <p className="text-[var(--color-fg-dim)]">{result.notes}</p>}

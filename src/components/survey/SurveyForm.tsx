@@ -79,7 +79,7 @@ export function SurveyForm({ initial, submitting, error, onSubmit }: SurveyFormP
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {restoredFromDraft && (
-        <p className="rounded-[1rem] bg-white/[0.05] px-4 py-2.5 text-xs text-[var(--color-fg-dim)]">
+        <p className="rounded-[1rem] bg-[var(--color-brand-50)] px-4 py-2.5 text-xs text-[var(--color-brand-text)]">
           已恢复上次未保存的草稿
         </p>
       )}
@@ -89,7 +89,7 @@ export function SurveyForm({ initial, submitting, error, onSubmit }: SurveyFormP
           type="date"
           value={visitDate}
           onChange={(e) => setVisitDate(e.target.value)}
-          className={cn('tabular-nums', '[color-scheme:dark]')}
+          className={cn('tabular-nums', '[color-scheme:light]')}
         />
       </Field>
 
@@ -150,7 +150,9 @@ export function SurveyForm({ initial, submitting, error, onSubmit }: SurveyFormP
               onClick={() => setStatus(opt.value)}
               className={cn(
                 'flex-1 rounded-[0.8rem] py-2 text-sm font-semibold transition-colors',
-                status === opt.value ? 'bg-white text-black' : 'text-[var(--color-fg-dim)]',
+                status === opt.value
+                  ? 'bg-[var(--color-brand-strong)] text-white'
+                  : 'text-[var(--color-fg-dim)]',
               )}
             >
               {opt.label}
@@ -159,7 +161,7 @@ export function SurveyForm({ initial, submitting, error, onSubmit }: SurveyFormP
         </div>
       </Field>
 
-      {error && <p className="text-sm text-[var(--color-accent)]">{error}</p>}
+      {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
 
       <Button type="submit" size="lg" className="w-full" disabled={submitting}>
         {submitting && <Spinner />}

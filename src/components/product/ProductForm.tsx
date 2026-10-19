@@ -173,7 +173,7 @@ export function ProductForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {restoredFromDraft && (
-        <p className="rounded-[1rem] bg-white/[0.05] px-4 py-2.5 text-xs text-[var(--color-fg-dim)]">
+        <p className="rounded-[1rem] bg-[var(--color-brand-50)] px-4 py-2.5 text-xs text-[var(--color-brand-text)]">
           已恢复上次未保存的草稿
         </p>
       )}
@@ -187,7 +187,9 @@ export function ProductForm({
               onClick={() => handleCategoryChange(cat)}
               className={cn(
                 'flex-1 rounded-[0.8rem] py-2.5 text-sm font-semibold transition-colors',
-                category === cat ? 'bg-white text-black' : 'text-[var(--color-fg-dim)]',
+                category === cat
+                  ? 'bg-[var(--color-brand-strong)] text-white'
+                  : 'text-[var(--color-fg-dim)]',
               )}
             >
               {CATEGORY_LABELS[cat]}
@@ -222,7 +224,7 @@ export function ProductForm({
               if (errors.sample_price) setErrors((p) => ({ ...p, sample_price: undefined }))
             }}
             placeholder="0.00"
-            className={cn('tabular-nums pr-10', errors.sample_price && 'border-[var(--color-accent)]/50')}
+            className={cn('tabular-nums pr-10', errors.sample_price && 'border-[var(--color-danger)]/50')}
           />
           <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[var(--color-muted)]">
             元
@@ -257,7 +259,7 @@ export function ProductForm({
                 className={cn(
                   'rounded-full px-4 py-2 text-sm font-semibold transition-colors',
                   energy === opt.name
-                    ? 'bg-white text-black'
+                    ? 'bg-[var(--color-brand-strong)] text-white'
                     : 'glass text-[var(--color-fg-dim)]',
                 )}
               >
@@ -333,7 +335,7 @@ export function ProductForm({
         />
       </Field>
 
-      {error && <p className="text-sm text-[var(--color-accent)]">{error}</p>}
+      {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
 
       <Button type="submit" size="lg" className="w-full" disabled={submitting}>
         {submitting && <Spinner />}
@@ -366,7 +368,7 @@ function NumericField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="0"
-          className={cn('tabular-nums pr-16', error && 'border-[var(--color-accent)]/50')}
+          className={cn('tabular-nums pr-16', error && 'border-[var(--color-danger)]/50')}
         />
         <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[var(--color-muted)]">
           {unit}

@@ -89,7 +89,7 @@ export function FilterPage() {
       <header className="flex items-center gap-3 pt-4 pb-6">
         <button
           onClick={() => navigate(-1)}
-          className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+          className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg)]"
           aria-label="返回"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -107,7 +107,7 @@ export function FilterPage() {
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="[color-scheme:dark] tabular-nums"
+              className="[color-scheme:light] tabular-nums"
             />
           </Field>
           <Field label="结束日期">
@@ -115,7 +115,7 @@ export function FilterPage() {
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className="[color-scheme:dark] tabular-nums"
+              className="[color-scheme:light] tabular-nums"
             />
           </Field>
         </div>
@@ -137,7 +137,7 @@ export function FilterPage() {
               setCategory(e.target.value as '' | ProductCategory)
               setForm('')
             }}
-            className="h-12 w-full rounded-[1.05rem] border border-[var(--color-line)] bg-[var(--color-surface-2)] px-4 text-[0.95rem] text-white focus:border-[var(--color-line-strong)] focus:outline-none"
+            className="h-12 w-full rounded-[1.05rem] border border-[var(--color-control)] bg-[var(--color-surface)] px-4 text-[1rem] text-[var(--color-fg)] focus:border-[var(--color-brand)] focus:outline-none focus:ring-4 focus:ring-[var(--color-brand)]/10"
           >
             {CATEGORY_OPTIONS.map((o) => (
               <option key={o.value} value={o.value} className="bg-[var(--color-surface)]">
@@ -160,7 +160,7 @@ export function FilterPage() {
             <select
               value={energy}
               onChange={(e) => setEnergy(e.target.value)}
-              className="h-12 w-full rounded-[1.05rem] border border-[var(--color-line)] bg-[var(--color-surface-2)] px-4 text-[0.95rem] text-white focus:border-[var(--color-line-strong)] focus:outline-none"
+              className="h-12 w-full rounded-[1.05rem] border border-[var(--color-control)] bg-[var(--color-surface)] px-4 text-[1rem] text-[var(--color-fg)] focus:border-[var(--color-brand)] focus:outline-none focus:ring-4 focus:ring-[var(--color-brand)]/10"
             >
               <option value="" className="bg-[var(--color-surface)]">全部</option>
               {energies.options.map((o) => (
@@ -185,12 +185,12 @@ export function FilterPage() {
           </Button>
         </div>
 
-        {error && <p className="text-sm text-[var(--color-accent)]">{error}</p>}
+        {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
 
         {results !== null && !loading && !error && (
           <div className="pt-2">
             <p className="mb-3 text-sm text-[var(--color-fg-dim)]">
-              找到 <span className="font-bold text-white">{results.length}</span> 条巡店记录
+              找到 <span className="font-bold text-[var(--color-fg)]">{results.length}</span> 条巡店记录
             </p>
             {results.length === 0 ? (
               <Card className="flex flex-col items-center py-12 text-center">

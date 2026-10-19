@@ -5,13 +5,10 @@ import { Input } from '@/components/ui/input'
 import { Field } from '@/components/form/Field'
 import { Spinner } from '@/components/ui/spinner'
 import { getAiStatus, setAiConfig } from '@/lib/ai'
-import type { AiProvider, AiStatus } from '@/lib/types'
+import type { AiStatus } from '@/lib/types'
 
 export function AiSettingsCard() {
-  const [provider, setProvider] = React.useState<AiProvider>('gemini')
   const [apiKey, setApiKey] = React.useState('')
-  const [model, setModel] = React.useState('gemini-2.5-flash')
-  const [baseUrl, setBaseUrl] = React.useState('')
   const [status, setStatus] = React.useState<AiStatus | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [saving, setSaving] = React.useState(false)
@@ -23,11 +20,7 @@ export function AiSettingsCard() {
     let alive = true
     getAiStatus()
       .then((s) => {
-        if (!alive) return
-        setStatus(s)
-        setProvider(s.provider)
-        setModel(s.model)
-        setBaseUrl(s.baseUrl ?? '')
+        if (alive) setStatus(s)
       })
       .catch((e) => {
         if (alive) setLoadError((e as Error).message || '加载 AI 配置失败')
@@ -45,7 +38,7 @@ export function AiSettingsCard() {
     setError(null)
     setMessage(null)
     try {
-      const s = await setAiConfig({ provider, apiKey, model, baseUrl })
+      const s = await setAiConfig({ apiKey })
       setStatus(s)
       setApiKey('')
       setMessage('已保存')
@@ -61,7 +54,7 @@ export function AiSettingsCard() {
     setError(null)
     setMessage(null)
     try {
-      const s = await setAiConfig({ provider, apiKey: '', model, baseUrl, clearApiKey: true })
+      const s = await setAiConfig({ apiKey: '', clearApiKey: true })
       setStatus(s)
       setApiKey('')
       setMessage('已清除 API Key')
@@ -77,50 +70,29 @@ export function AiSettingsCard() {
       <div className="space-y-1">
         <CardTitle>AI 识别</CardTitle>
         <CardDescription>
-          铭牌拍照识别填表所用的模型。识别时铭牌图片会发送给所选模型提供方（Google Gemini
-          或你配置的 OpenAI 兼容端点）；API Key 仅存于你的 Google 账号后端，不会回传浏览器。
+          铭牌拍照识别使用 DeepSeek（deepseek-flash）。识别时铭牌图片会发送给 DeepSeek；API Key
+          仅存于你的 Google 账号后端，不会回传浏览器。
         </CardDescription>
       </div>
 
       {status && (
         <p className="text-sm text-[var(--color-fg-dim)]">
-          当前：{status.configured ? '已配置' : '未配置'} · {status.provider} · {status.model}
+          当前：{status.configured ? '已配置' : '未配置'} · {status.model}
         </p>
       )}
 
-      <Field label="提供方">
-        <select
-          value={provider}
-          onChange={(e) => setProvider(e.target.value as AiProvider)}
-          className="flex h-12 w-full rounded-[1.05rem] border border-[var(--color-line)] bg-[var(--color-surface-2)] px-4 text-[0.95rem] text-white focus:outline-none focus:border-[var(--color-line-strong)]"
-        >
-          <option value="gemini">Gemini</option>
-          <option value="openai">OpenAI 兼容</option>
-        </select>
-      </Field>
-
-      <Field label="API Key" hint="留空表示不修改已保存的 Key">
+      <Field label="DeepSeek API Key" hint="留空表示不修改已保存的 Key">
         <Input
           type="password"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          placeholder={status?.configured ? '••••••••' : '粘贴你的 API Key'}
+          placeholder={status?.configured ? '••••••••' : '粘贴你的 DeepSeek API Key'}
         />
       </Field>
 
-      <Field label="模型名" hint="需支持图片输入，如 gemini-2.5-flash / qwen-vl-max">
-        <Input value={model} onChange={(e) => setModel(e.target.value)} placeholder="gemini-2.5-flash" />
-      </Field>
-
-      {provider === 'openai' && (
-        <Field label="Base URL" hint="如 https://dashscope.aliyuncs.com/compatible-mode/v1">
-          <Input value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} placeholder="https://..." />
-        </Field>
-      )}
-
       {message && <p className="text-sm text-[var(--color-fg-dim)]">{message}</p>}
-      {error && <p className="text-sm text-[var(--color-accent)]">{error}</p>}
-      {loadError && <p className="text-sm text-[var(--color-accent)]">{loadError}，请刷新页面重试</p>}
+      {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
+      {loadError && <p className="text-sm text-[var(--color-danger)]">{loadError}，请刷新页面重试</p>}
 
       <Button variant="outline" className="w-full" onClick={handleSave} disabled={saving || loading || !!loadError}>
         {saving && <Spinner />} 保存 AI 配置
