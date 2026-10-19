@@ -7,7 +7,7 @@ export function SurveyCard({ survey }: { survey: Survey }) {
 
   return (
     <Link to={`/survey/${survey.id}`} className="block">
-      <div className="glass squircle flex items-center gap-4 rounded-[var(--radius-xl)] p-4 transition-colors active:bg-white/[0.06]">
+      <div className="glass squircle flex items-center gap-4 rounded-[var(--radius-xl)] p-4 transition-colors active:bg-[var(--color-surface-2)]">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-xs text-[var(--color-fg-dim)]">
             <CalendarDays className="h-3.5 w-3.5" />
@@ -24,7 +24,7 @@ export function SurveyCard({ survey }: { survey: Survey }) {
             <span className="mx-1 text-[var(--color-muted)]">·</span>
             {survey.customer}
           </p>
-          <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-[0.68rem] font-semibold text-[var(--color-fg-dim)]">
+          <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-[0.68rem] font-semibold text-[var(--color-fg-dim)]">
             <Package className="h-3 w-3" />
             {survey.product_count ?? 0} 个产品
           </div>

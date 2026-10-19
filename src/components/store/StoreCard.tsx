@@ -5,8 +5,8 @@ import type { StoreGroup } from '@/lib/surveys'
 export function StoreCard({ group }: { group: StoreGroup }) {
   return (
     <Link to={`/store/${encodeURIComponent(group.store)}`} className="block">
-      <div className="glass squircle overflow-hidden rounded-[var(--radius-xl)] transition-colors active:bg-white/[0.06]">
-        <div className="relative h-28 w-full bg-gradient-to-br from-white/[0.08] to-transparent">
+      <div className="glass squircle overflow-hidden rounded-[var(--radius-xl)] transition-colors active:bg-[var(--color-surface-2)]">
+        <div className="relative h-28 w-full bg-gradient-to-br from-[var(--color-brand-50)] to-[var(--color-surface-2)]">
           {group.cover ? (
             <img src={group.cover} alt="" loading="lazy" className="h-full w-full object-cover" />
           ) : (

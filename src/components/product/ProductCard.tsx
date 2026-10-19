@@ -38,7 +38,7 @@ export function ProductCard({
     <Card className="p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <span className="inline-block rounded-full bg-white/[0.06] px-2 py-0.5 text-[0.68rem] font-semibold text-[var(--color-fg-dim)]">
+          <span className="inline-block rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-[0.68rem] font-semibold text-[var(--color-fg-dim)]">
             {CATEGORY_LABELS[p.category]}
           </span>
           <h3 className="mt-1.5 truncate font-bold leading-tight">{p.product_name}</h3>
@@ -53,9 +53,9 @@ export function ProductCard({
           {metrics.map((m) => (
             <span
               key={m.label}
-              className="rounded-full bg-white/[0.04] px-2.5 py-1 text-[0.72rem] text-[var(--color-fg-dim)]"
+              className="rounded-full bg-[var(--color-surface-2)] px-2.5 py-1 text-[0.72rem] text-[var(--color-fg-dim)]"
             >
-              {m.label} <span className="font-semibold text-white">{m.value}</span>
+              {m.label} <span className="font-semibold text-[var(--color-fg)]">{m.value}</span>
             </span>
           ))}
         </div>
@@ -124,8 +124,8 @@ function ActionButton({
       className={
         'flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40 ' +
         (destructive
-          ? 'text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10'
-          : 'text-[var(--color-fg-dim)] hover:bg-white/5 hover:text-white')
+          ? 'text-[var(--color-danger)] hover:bg-[var(--color-danger-soft)]'
+          : 'text-[var(--color-fg-dim)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-fg)]')
       }
     >
       {children}

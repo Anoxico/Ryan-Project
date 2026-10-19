@@ -73,7 +73,7 @@ export function StoreDetailPage() {
       <header className="flex items-center gap-3 pt-4 pb-6">
         <button
           onClick={() => navigate(-1)}
-          className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+          className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg)]"
           aria-label="返回"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -101,8 +101,8 @@ export function StoreDetailPage() {
       )}
 
       {!loading && error && (
-        <Card className="border-[var(--color-accent)]/30">
-          <p className="text-sm text-[var(--color-accent)]">{error}</p>
+        <Card className="border-[var(--color-danger)]/30">
+          <p className="text-sm text-[var(--color-danger)]">{error}</p>
           <Button variant="outline" className="mt-4 w-full" onClick={() => void load()}>
             重试
           </Button>
@@ -151,12 +151,12 @@ export function StoreDetailPage() {
                 <div
                   className={cn(
                     'glass squircle flex items-center gap-3 rounded-[var(--radius-xl)] p-4 transition-colors',
-                    !selecting && 'active:bg-white/[0.06]',
-                    isSelected && 'ring-1 ring-[var(--color-accent)]',
+                    !selecting && 'active:bg-[var(--color-surface-2)]',
+                    isSelected && 'ring-1 ring-[var(--color-brand)]',
                   )}
                 >
                   {selecting && (
-                    <span className="shrink-0 text-[var(--color-accent)]">
+                    <span className="shrink-0 text-[var(--color-danger)]">
                       {isSelected ? (
                         <CheckCircle2 className="h-5 w-5" />
                       ) : (
@@ -174,7 +174,7 @@ export function StoreDetailPage() {
                         </span>
                       )}
                     </div>
-                    <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-[0.68rem] font-semibold text-[var(--color-fg-dim)]">
+                    <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-[0.68rem] font-semibold text-[var(--color-fg-dim)]">
                       <Package className="h-3 w-3" />
                       {s.product_count ?? 0} 个产品
                     </div>
@@ -212,7 +212,7 @@ export function StoreDetailPage() {
           <div className="mx-auto max-w-md px-4 pb-4">
             <div className="glass-strong flex items-center gap-3 rounded-[1.4rem] p-3">
               <span className="pl-1 text-sm text-[var(--color-fg-dim)]">
-                已选 <span className="font-bold text-white">{selected.size}</span> 条
+                已选 <span className="font-bold text-[var(--color-fg)]">{selected.size}</span> 条
               </span>
               <Button
                 variant="destructive"

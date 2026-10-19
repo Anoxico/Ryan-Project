@@ -150,7 +150,7 @@ export function SurveyDetailPage() {
       <header className="flex items-center justify-between pt-4 pb-6">
         <button
           onClick={() => navigate(-1)}
-          className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+          className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg)]"
           aria-label="返回"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -159,14 +159,14 @@ export function SurveyDetailPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate(`/survey/${survey.id}/edit`)}
-              className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+              className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg)]"
               aria-label="编辑"
             >
               <Pencil className="h-4 w-4" />
             </button>
             <button
               onClick={() => setConfirmSurveyOpen(true)}
-              className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-accent)]"
+              className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-danger)]"
               aria-label="删除"
             >
               <Trash2 className="h-4 w-4" />
@@ -183,7 +183,7 @@ export function SurveyDetailPage() {
 
       {!loading && error && !survey && (
         <Card>
-          <p className="text-sm text-[var(--color-accent)]">{error}</p>
+          <p className="text-sm text-[var(--color-danger)]">{error}</p>
           <Button variant="outline" className="mt-4 w-full" onClick={() => navigate('/')}>
             返回列表
           </Button>
@@ -259,7 +259,7 @@ export function SurveyDetailPage() {
             </Button>
           </div>
 
-          {error && survey && <p className="mb-3 text-sm text-[var(--color-accent)]">{error}</p>}
+          {error && survey && <p className="mb-3 text-sm text-[var(--color-danger)]">{error}</p>}
 
           {(!survey.products || survey.products.length === 0) && (
             <Card className="flex flex-col items-center py-10 text-center">
@@ -338,7 +338,7 @@ function InfoRow({
         {icon}
         {label}
       </span>
-      <span className="truncate text-sm font-semibold text-white">{value}</span>
+      <span className="truncate text-sm font-semibold text-[var(--color-fg)]">{value}</span>
     </div>
   )
 }
