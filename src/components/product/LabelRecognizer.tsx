@@ -35,15 +35,26 @@ export function LabelRecognizer({
   const inputRef = React.useRef<HTMLInputElement>(null)
   const fileRef = React.useRef<File | null>(null)
   const itemRef = React.useRef<PhotoItem | null>(null)
+  const reqIdRef = React.useRef(0)
   const [status, setStatus] = React.useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [result, setResult] = React.useState<RecognitionResult | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [savePhoto, setSavePhoto] = React.useState(false)
 
+  React.useEffect(() => {
+    reqIdRef.current += 1
+    setStatus('idle')
+    setResult(null)
+    setError(null)
+    setSavePhoto(false)
+    itemRef.current = null
+  }, [category])
+
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
+    const reqId = ++reqIdRef.current
     fileRef.current = file
     itemRef.current = null
     setSavePhoto(false)
@@ -52,17 +63,20 @@ export function LabelRecognizer({
     setStatus('loading')
     try {
       const raw = await recognizeLabel({ file, category })
+      if (reqId !== reqIdRef.current) return
       const parsed = parseRecognitionResult(raw)
       setResult(parsed)
       onRecognized(recognitionToFormPatch(parsed, category))
       setStatus('done')
     } catch (err) {
+      if (reqId !== reqIdRef.current) return
       setError((err as Error).message)
       setStatus('error')
     }
   }
 
   function toggleSave(checked: boolean) {
+    if (disabled) return
     const file = fileRef.current
     if (!file) return
     if (checked) {
@@ -112,7 +126,7 @@ export function LabelRecognizer({
           </p>
           {result.notes && <p className="text-[var(--color-fg-dim)]">{result.notes}</p>}
           <label className="flex items-center gap-2 text-[var(--color-fg-dim)]">
-            <input type="checkbox" checked={savePhoto} onChange={(e) => toggleSave(e.target.checked)} />
+            <input type="checkbox" checked={savePhoto} disabled={disabled} onChange={(e) => toggleSave(e.target.checked)} />
             同时保存铭牌图到照片
           </label>
         </div>
