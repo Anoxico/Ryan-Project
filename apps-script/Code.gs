@@ -788,16 +788,16 @@ function aiBuildPrompt_(category) {
 
 function aiSchema_() {
   return {
-    type: 'object',
+    type: 'OBJECT',
     properties: {
-      model: { type: 'string', nullable: true },
-      params: { type: 'array', items: { type: 'string' } },
-      noise_db: { type: 'number', nullable: true },
-      sets_count: { type: 'number', nullable: true },
-      liter: { type: 'number', nullable: true },
-      air_volume: { type: 'number', nullable: true },
-      confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
-      notes: { type: 'string', nullable: true }
+      model: { type: 'STRING', nullable: true },
+      params: { type: 'ARRAY', items: { type: 'STRING' } },
+      noise_db: { type: 'NUMBER', nullable: true },
+      sets_count: { type: 'NUMBER', nullable: true },
+      liter: { type: 'NUMBER', nullable: true },
+      air_volume: { type: 'NUMBER', nullable: true },
+      confidence: { type: 'STRING', enum: ['high', 'medium', 'low'] },
+      notes: { type: 'STRING', nullable: true }
     },
     required: ['model', 'params', 'confidence']
   };
@@ -858,8 +858,8 @@ function aiCallOpenAI_(cfg, p, prompt) {
     return { status: res.getResponseCode(), text: res.getContentText() };
   }
   let r = call(true);
-  // 部分兼容端点不支持 response_format，失败时去掉再试一次
-  if (r.status < 200 || r.status >= 300) r = call(false);
+  // 部分兼容端点不支持 response_format，仅在格式相关错误时去掉重试
+  if (r.status === 400 || r.status === 422) r = call(false);
   if (r.status < 200 || r.status >= 300) throw new Error('识别服务错误(' + r.status + ')：' + r.text);
   const json = JSON.parse(r.text);
   const choice = json.choices && json.choices[0];
