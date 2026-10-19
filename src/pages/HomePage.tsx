@@ -1,11 +1,13 @@
 import * as React from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Plus, Store, CalendarDays } from 'lucide-react'
+import { Plus, Store, RefreshCw } from 'lucide-react'
 import { PageHeader } from '@/components/layout/AppShell'
-import { Card } from '@/components/ui/card'
+import { SurveyCard } from '@/components/survey/SurveyCard'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
-import { api } from '@/lib/api'
+import { listSurveys } from '@/lib/surveys'
 import type { Survey } from '@/lib/types'
 
 export function HomePage() {
@@ -13,28 +15,39 @@ export function HomePage() {
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
-  React.useEffect(() => {
-    let alive = true
-    ;(async () => {
-      try {
-        const data = await api<Survey[]>('listSurveys')
-        if (alive) setSurveys(data)
-      } catch (e) {
-        if (alive) setError((e as Error).message)
-      } finally {
-        if (alive) setLoading(false)
-      }
-    })()
-    return () => {
-      alive = false
+  const load = React.useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await listSurveys()
+      setSurveys(data)
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setLoading(false)
     }
   }, [])
+
+  React.useEffect(() => {
+    void load()
+  }, [load])
 
   return (
     <div>
       <PageHeader
         title="巡店记录"
         subtitle={loading ? '加载中…' : `共 ${surveys.length} 次巡店`}
+        action={
+          !loading && (
+            <button
+              onClick={() => void load()}
+              className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg-dim)]"
+              aria-label="刷新"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </button>
+          )
+        }
       />
 
       {loading && (
@@ -43,12 +56,15 @@ export function HomePage() {
         </div>
       )}
 
-      {error && (
+      {!loading && error && (
         <Card className="border-[var(--color-accent)]/30">
           <p className="text-sm text-[var(--color-accent)]">{error}</p>
           <p className="mt-1 text-xs text-[var(--color-muted)]">
             请到「设置」检查后端地址与口令。
           </p>
+          <Button variant="outline" className="mt-4 w-full" onClick={() => void load()}>
+            重试
+          </Button>
         </Card>
       )}
 
@@ -56,7 +72,7 @@ export function HomePage() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glow mt-10 flex flex-col items-center justify-center rounded-[var(--radius-2xl)] border border-dashed border-[var(--color-line)] px-6 py-16 text-center"
+          className="glow mt-8 flex flex-col items-center justify-center rounded-[var(--radius-2xl)] border border-dashed border-[var(--color-line)] px-6 py-16 text-center"
         >
           <div className="glass flex h-16 w-16 items-center justify-center rounded-full">
             <Store className="h-7 w-7 text-[var(--color-fg-dim)]" />
@@ -65,37 +81,34 @@ export function HomePage() {
           <p className="mt-1 max-w-[16rem] text-sm text-[var(--color-fg-dim)]">
             新建一条巡店单，开始记录门店出样情况。
           </p>
-          <Button className="mt-6" disabled>
-            <Plus className="h-4 w-4" /> 新建巡店单
+          <Button asChild className="mt-6">
+            <Link to="/survey/new">
+              <Plus className="h-4 w-4" /> 新建巡店单
+            </Link>
           </Button>
-          <p className="mt-2 text-xs text-[var(--color-muted)]">（阶段 2 开放）</p>
         </motion.div>
       )}
 
-      {!loading && surveys.length > 0 && (
+      {!loading && !error && surveys.length > 0 && (
         <div className="space-y-3">
           {surveys.map((s) => (
-            <Card key={s.id} className="flex items-center gap-4">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 text-xs text-[var(--color-fg-dim)]">
-                  <CalendarDays className="h-3.5 w-3.5" />
-                  {s.visit_date}
-                </div>
-                <h3 className="mt-1 truncate text-base font-bold">{s.store}</h3>
-                <p className="truncate text-sm text-[var(--color-fg-dim)]">
-                  {s.channel} · {s.customer}
-                </p>
-              </div>
-              <div className="glass flex h-12 min-w-12 items-center justify-center rounded-[1rem] px-3 text-sm font-bold">
-                {s.product_count ?? 0}
-                <span className="ml-0.5 text-[0.65rem] font-medium text-[var(--color-fg-dim)]">
-                  品
-                </span>
-              </div>
-            </Card>
+            <SurveyCard key={s.id} survey={s} />
           ))}
         </div>
       )}
+
+      {/* 悬浮新建按钮 */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-24 z-20">
+        <div className="mx-auto flex max-w-md justify-end px-4">
+          <Link
+            to="/survey/new"
+            className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)] text-white shadow-[0_10px_40px_-8px_var(--color-accent)] transition-transform active:scale-95"
+            aria-label="新建巡店单"
+          >
+            <Plus className="h-6 w-6" strokeWidth={2.5} />
+          </Link>
+        </div>
+      </div>
     </div>
   )
 }

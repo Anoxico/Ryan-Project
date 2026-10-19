@@ -4,6 +4,8 @@ import { HomePage } from '@/pages/HomePage'
 import { StatsPage } from '@/pages/StatsPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { SetupPage } from '@/pages/SetupPage'
+import { SurveyEditPage } from '@/pages/SurveyEditPage'
+import { SurveyDetailPage } from '@/pages/SurveyDetailPage'
 import { useAppConfig } from '@/lib/app-config'
 
 function Router() {
@@ -40,6 +42,9 @@ function Router() {
           </AppShell>
         }
       />
+      <Route path="/survey/new" element={<SurveyEditPage />} />
+      <Route path="/survey/:id" element={<SurveyDetailPage />} />
+      <Route path="/survey/:id/edit" element={<SurveyEditPage />} />
     </Routes>
   )
 }
