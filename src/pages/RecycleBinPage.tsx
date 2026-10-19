@@ -84,7 +84,7 @@ export function RecycleBinPage() {
       <header className="flex items-center gap-3 pt-4 pb-6">
         <button
           onClick={() => navigate(-1)}
-          className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+          className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg)]"
           aria-label="返回"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -96,7 +96,7 @@ export function RecycleBinPage() {
         {items.length > 0 && (
           <button
             onClick={() => setConfirmEmpty(true)}
-            className="shrink-0 text-sm font-semibold text-[var(--color-accent)]"
+            className="shrink-0 text-sm font-semibold text-[var(--color-danger)]"
           >
             清空
           </button>
@@ -110,8 +110,8 @@ export function RecycleBinPage() {
       )}
 
       {!loading && error && (
-        <Card className="border-[var(--color-accent)]/30">
-          <p className="text-sm text-[var(--color-accent)]">{error}</p>
+        <Card className="border-[var(--color-danger)]/30">
+          <p className="text-sm text-[var(--color-danger)]">{error}</p>
           <Button variant="outline" className="mt-4 w-full" onClick={() => void load()}>
             重试
           </Button>
@@ -141,7 +141,7 @@ export function RecycleBinPage() {
                     巡店 {s.visit_date}
                   </p>
                 </div>
-                <span className="shrink-0 rounded-full bg-[var(--color-warning)]/15 px-2.5 py-1 text-[0.65rem] font-semibold text-[var(--color-warning)]">
+                <span className="shrink-0 rounded-full bg-[var(--color-warning-soft)] px-2.5 py-1 text-[0.65rem] font-semibold text-[var(--color-warning)]">
                   {s.days_left} 天后清除
                 </span>
               </div>

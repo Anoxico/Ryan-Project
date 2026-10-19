@@ -64,7 +64,7 @@ export function SurveyEditPage() {
       <header className="flex items-center gap-3 pt-4 pb-6">
         <button
           onClick={() => navigate(-1)}
-          className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+          className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg)]"
           aria-label="返回"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -85,7 +85,7 @@ export function SurveyEditPage() {
 
       {!loading && loadError && (
         <div className="glass rounded-[var(--radius-xl)] p-5">
-          <p className="text-sm text-[var(--color-accent)]">{loadError}</p>
+          <p className="text-sm text-[var(--color-danger)]">{loadError}</p>
           <button
             className="mt-3 text-sm text-[var(--color-fg-dim)] underline"
             onClick={() => navigate('/')}

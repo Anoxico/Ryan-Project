@@ -44,7 +44,7 @@ export function SetupPage({ mode = 'setup' }: { mode?: 'setup' | 'edit' }) {
   }
 
   return (
-    <div className="glow min-h-[100dvh] bg-black">
+    <div className="glow min-h-[100dvh]">
       <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col px-5 pt-16 pb-10">
         {mode === 'edit' && (
           <button
@@ -114,7 +114,7 @@ export function SetupPage({ mode = 'setup' }: { mode?: 'setup' | 'edit' }) {
               className={
                 'mt-3 text-center text-sm ' +
                 (status === 'error'
-                  ? 'text-[var(--color-accent)]'
+                  ? 'text-[var(--color-danger)]'
                   : status === 'success'
                     ? 'text-[var(--color-success)]'
                     : 'text-[var(--color-fg-dim)]')

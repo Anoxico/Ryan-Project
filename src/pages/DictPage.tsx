@@ -107,7 +107,7 @@ export function DictPage() {
       <header className="flex items-center gap-3 pt-4 pb-6">
         <button
           onClick={() => navigate(-1)}
-          className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+          className="glass flex h-10 w-10 items-center justify-center rounded-full text-[var(--color-fg)]"
           aria-label="返回"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -129,7 +129,9 @@ export function DictPage() {
             }}
             className={cn(
               'shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors',
-              type === t ? 'bg-white text-black' : 'glass text-[var(--color-fg-dim)]',
+              type === t
+                ? 'bg-[var(--color-brand-strong)] text-white'
+                : 'glass text-[var(--color-fg-dim)]',
             )}
           >
             {DICT_TYPE_LABELS[t]}
@@ -147,8 +149,8 @@ export function DictPage() {
               className={cn(
                 'flex-1 rounded-[0.9rem] py-2 text-sm font-semibold transition-colors',
                 category === c
-                  ? 'bg-[var(--color-surface-3)] text-white'
-                  : 'bg-white/[0.04] text-[var(--color-fg-dim)]',
+                  ? 'border border-[var(--color-brand-100)] bg-[var(--color-brand-50)] text-[var(--color-brand-text)]'
+                  : 'bg-[var(--color-surface-2)] text-[var(--color-fg-dim)]',
               )}
             >
               {CATEGORY_LABELS[c]}
@@ -170,7 +172,7 @@ export function DictPage() {
         </Button>
       </div>
 
-      {error && <p className="mb-3 text-sm text-[var(--color-accent)]">{error}</p>}
+      {error && <p className="mb-3 text-sm text-[var(--color-danger)]">{error}</p>}
 
       {loading && (
         <div className="flex justify-center py-12">
@@ -227,7 +229,7 @@ export function DictPage() {
                   </button>
                   <button
                     onClick={() => setDeleteTarget(item)}
-                    className="rounded-full p-2 text-[var(--color-accent)]"
+                    className="rounded-full p-2 text-[var(--color-danger)]"
                     aria-label="删除"
                   >
                     <Trash2 className="h-4 w-4" />

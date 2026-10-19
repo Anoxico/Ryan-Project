@@ -50,7 +50,7 @@ export function SettingsPage() {
           onClick={() => navigate('/recycle')}
           className="flex w-full items-center justify-between"
         >
-          <span className="flex items-center gap-2 text-sm font-semibold text-white">
+          <span className="flex items-center gap-2 text-sm font-semibold text-[var(--color-fg)]">
             <Trash className="h-4 w-4" />
             回收站
           </span>
@@ -66,7 +66,7 @@ export function SettingsPage() {
           onClick={() => navigate('/dict')}
           className="flex w-full items-center justify-between"
         >
-          <span className="flex items-center gap-2 text-sm font-semibold text-white">
+          <span className="flex items-center gap-2 text-sm font-semibold text-[var(--color-fg)]">
             <BookText className="h-4 w-4" />
             字典管理
           </span>
@@ -81,7 +81,7 @@ export function SettingsPage() {
         <div className="flex items-start gap-3">
           <Info className="mt-0.5 h-4 w-4 text-[var(--color-fg-dim)]" />
           <div className="text-sm leading-relaxed text-[var(--color-fg-dim)]">
-            <p className="font-semibold text-white">巡店记录</p>
+            <p className="font-semibold text-[var(--color-fg)]">巡店记录</p>
             <p className="mt-1">
               数据保存在你自己的 Google 表格与网盘中，配置仅存于本机浏览器。
             </p>
@@ -103,8 +103,8 @@ function Row({
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="flex items-center gap-2 text-sm font-semibold text-white">
-        {icon}
+      <span className="flex items-center gap-2 text-sm font-semibold text-[var(--color-fg)]">
+        <span className="text-[var(--color-brand)]">{icon}</span>
         {label}
       </span>
       <div className="min-w-0 text-right">{children}</div>
